@@ -7,6 +7,8 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.List;
+import javax.xml.transform.Source;
+import javax.xml.transform.URIResolver;
 
 import org.fit.net.DataURLHandler;
 import org.slf4j.Logger;
@@ -79,6 +81,8 @@ public final class CSSFactory {
 	 * Used NodeData class
 	 */
 	private static Class<? extends NodeData> ndImpl;
+
+	private static URIResolver ur;
 
 	/**
 	 * Default match condition
@@ -342,6 +346,32 @@ public final class CSSFactory {
 		} catch (Exception e) {
 			throw new RuntimeException("No NodeData implementation registered");
 		}
+	}
+
+	/**
+	 * Registers URIResolver.
+	 * 
+	 * @param uriResolver
+	 *            New URIResolver instance
+	 */
+	public static final void registerURIResolver(URIResolver newURIResolver) {
+		ur = newURIResolver;
+	}
+
+	/**
+	 * Returns registered URIResolver.
+	 * 
+	 * @return URIResolver instance
+	 */
+	public static final URIResolver getURIResolver() {
+		if (ur == null) {
+			ur = new URIResolver() {
+				public Source resolve(String href, String base) {
+					return null;
+				}
+			};
+		}
+		return ur;
 	}
 
 	/**

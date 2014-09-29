@@ -8,14 +8,21 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.util.zip.GZIPInputStream;
 
+import javax.xml.transform.Source;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.URIResolver;
+
 import org.antlr.runtime.ANTLRInputStream;
 import org.antlr.runtime.ANTLRReaderStream;
 import org.antlr.runtime.CharStream;
+
+import cz.vutbr.web.css.CSSFactory;
 
 /**
  * Wraps ANTLR stream with useful decorations,
@@ -55,6 +62,7 @@ public class CSSInputStream implements CharStream {
 	 */
 	private String encoding;
 	
+	private static final URIResolver ur = CSSFactory.getURIResolver();
 	
 	public static CSSInputStream stringStream(String source) throws IOException {
 		CSSInputStream stream = new CSSInputStream();
@@ -72,6 +80,14 @@ public class CSSInputStream implements CharStream {
 	public static CSSInputStream urlStream(URL source, String encoding) throws IOException {
 		CSSInputStream stream = new CSSInputStream();
 		
+		try {
+			Source resolvedSource = ur.resolve(source.toString(), "");	
+			if (resolvedSource != null)
+				source = new URL(resolvedSource.getSystemId());
+		} catch (TransformerException e) {
+		} catch (MalformedURLException e) {
+		}
+
 		stream.base = source;
 		if (encoding != null)
             stream.encoding = encoding;
@@ -221,6 +237,13 @@ public class CSSInputStream implements CharStream {
 	 * @param base The new base URL.
 	 */
 	public void setBase(URL base) {
+		try {
+			Source resolvedBase = ur.resolve(base.toString(), "");	
+			if (resolvedBase != null)
+				base = new URL(resolvedBase.getSystemId());
+		} catch (TransformerException e) {
+		} catch (MalformedURLException e) {
+		}
 	    this.base = base;
 	}
 	
