@@ -10,9 +10,10 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>net.sf.cssbox</groupId>
+	<groupId>org.daisy.libs</groupId>
 	<artifactId>jstyleparser</artifactId>
-	<version>1.20</version>
+	<version>1.20-p1-SNAPSHOT</version>
+	<packaging>bundle</packaging>
 	<name>jStyleParser</name>
 	<description>jStyleParser is a CSS parser written in Java. It has its own application interface that is designed to allow an efficient CSS processing in Java and mapping the values to the Java data types. It parses CSS 2.1 style sheets into structures that can be efficiently assigned to DOM elements. It is intended be the primary CSS parser for the CSSBox library. While handling errors, it is user agent conforming according to the CSS specification.</description>
 	<url>http://cssbox.sourceforge.net/jstyleparser</url>
@@ -65,9 +66,10 @@
 	</developers>
 
 	<parent>
-		<groupId>org.sonatype.oss</groupId>
-		<artifactId>oss-parent</artifactId>
-		<version>7</version>
+		<groupId>org.daisy</groupId>
+		<artifactId>daisy</artifactId>
+		<version>2</version>
+		<relativePath />
 	</parent>
   
 	<scm>
@@ -191,6 +193,11 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+			
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
 			</plugin>
 		</plugins>
 		
