@@ -101,11 +101,9 @@ public class ElementUtil {
 	
 	public static boolean matchesAttribute(Element e, String name, String value, Selector.Operator o) 
 	{
-	    Node attributeNode = e.getAttributeNode(name);
-	    if (attributeNode != null && o != null)
+	    String attributeValue = e.getAttribute(name);
+	    if (attributeValue.length() >  0 && o != null)
 	    {
-    	    String attributeValue = attributeNode.getNodeValue();
-    		
     		switch(o) {
         		case EQUALS:
         			return attributeValue.equals(value);
