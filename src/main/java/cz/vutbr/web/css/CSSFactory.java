@@ -493,18 +493,41 @@ public final class CSSFactory {
      *            Base URL against which all files are searched
      * @param media
      *            Selected media for style sheet
+     * @param style
+     *            Style sheet to be modified
      * @return the rules of all the style sheets used in the document including the inline styles
      */
-    public static final StyleSheet getUsedStyles(Document doc, String encoding, URL base, MediaSpec media, NetworkProcessor network)
+    public static final StyleSheet getUsedStyles(Document doc, String encoding, URL base, MediaSpec media, NetworkProcessor network, StyleSheet style)
     {
         SourceData pair = new SourceData(base, network, media);
 
         Traversal<StyleSheet> traversal = new CSSAssignTraversal(doc, encoding,
                 (Object) pair, NodeFilter.SHOW_ELEMENT);
 
-        StyleSheet style = (StyleSheet) getRuleFactory().createStyleSheet().unlock();
         traversal.listTraversal(style);
         return style;
+    }
+    
+    /**
+     * This is the same as {@link CSSFactory#getUsedStyles(Document, String, URL, MediaSpec, NetworkProcessor, Stylesheet)}
+     * but a new StyleSheet is created instead of appending to one.
+     * 
+     * @param doc
+     *            DOM tree
+     * @param encoding
+     *            The default encoding used for the referenced style sheets
+     * @param base
+     *            Base URL against which all files are searched
+     * @param media
+     *            Selected media for style sheet
+     * @param network
+     *            The network processor used for accessing the URL resources
+     * @return the rules of all the style sheets used in the document including the inline styles
+     */
+	public static final StyleSheet getUsedStyles(Document doc, String encoding, URL base, MediaSpec media, NetworkProcessor network)
+    {
+        StyleSheet style = (StyleSheet) getRuleFactory().createStyleSheet().unlock();
+        return getUsedStyles(doc, encoding, base, media, network, style);
     }
     
     /**
