@@ -130,7 +130,7 @@ public class DeclarationTransformer {
 	private static final DeclarationTransformer instance;
 
 	protected static final TermFactory tf = CSSFactory.getTermFactory();
-	private static final SupportedCSS css = CSSFactory.getSupportedCSS();
+	private final SupportedCSS css = CSSFactory.getSupportedCSS();
 
 	static {
 		instance = new DeclarationTransformer();
