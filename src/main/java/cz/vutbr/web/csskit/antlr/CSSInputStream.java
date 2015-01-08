@@ -15,6 +15,7 @@ import java.nio.charset.Charset;
 import java.util.zip.GZIPInputStream;
 
 import javax.xml.transform.Source;
+import javax.xml.transform.stream.StreamSource;
 import javax.xml.transform.TransformerException;
 import javax.xml.transform.URIResolver;
 
@@ -79,11 +80,14 @@ public class CSSInputStream implements CharStream {
 	
 	public static CSSInputStream urlStream(URL source, String encoding) throws IOException {
 		CSSInputStream stream = new CSSInputStream();
+		InputStream is = null;
 		
 		try {
-			Source resolvedSource = ur.resolve(source.toString(), "");	
-			if (resolvedSource != null)
-				source = new URL(resolvedSource.getSystemId());
+			Source resolvedSource = ur.resolve(source.toString(), "");
+			if (resolvedSource != null) {
+				if (resolvedSource instanceof StreamSource)
+					is = ((StreamSource)resolvedSource).getInputStream();
+				source = new URL(resolvedSource.getSystemId()); }
 		} catch (TransformerException e) {
 		} catch (MalformedURLException e) {
 		}
@@ -94,12 +98,12 @@ public class CSSInputStream implements CharStream {
 		else
             stream.encoding = Charset.defaultCharset().name();
 		
-        URLConnection con = source.openConnection();
-        InputStream is;
-        if ("gzip".equalsIgnoreCase(con.getContentEncoding()))
-            is = new GZIPInputStream(con.getInputStream());
-        else
-            is = con.getInputStream();
+		if (is == null) {
+			URLConnection con = source.openConnection();
+			if ("gzip".equalsIgnoreCase(con.getContentEncoding()))
+				is = new GZIPInputStream(con.getInputStream());
+			else
+				is = con.getInputStream(); }
         stream.input = new ANTLRInputStream(is, stream.encoding);
         stream.source = is;
         stream.url = source;
