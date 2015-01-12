@@ -17,7 +17,10 @@ import org.w3c.dom.Element;
 import cz.vutbr.web.css.CSSException;
 import cz.vutbr.web.css.CSSFactory;
 import cz.vutbr.web.css.MediaQuery;
+import cz.vutbr.web.css.RuleBlock;
 import cz.vutbr.web.css.RuleList;
+import cz.vutbr.web.css.RuleMedia;
+import cz.vutbr.web.css.RuleSet;
 import cz.vutbr.web.css.StyleSheet;
 import cz.vutbr.web.css.RuleBlock.Priority;
 import cz.vutbr.web.csskit.PriorityStrategy;
@@ -363,7 +366,25 @@ public class CSSParserFactory {
                 log.trace("Skipping import {} (media not matching)", path);
         }
 
-	    return parser.addRulesToStyleSheet(sheet, ps);
+	    return addRulesToStyleSheet(parser.getRules(), sheet, ps);
+	}
+	
+	private static StyleSheet addRulesToStyleSheet(RuleList rules, StyleSheet sheet, PriorityStrategy ps) {
+		if (rules != null)
+		{
+			for (RuleBlock<?> rule : rules)
+			{
+				rule.setPriority(ps.getAndIncrement());
+				if (rule instanceof RuleMedia) //@media: assign priority to contained rules
+				{
+					for (RuleSet inrule : (RuleMedia) rule)
+						inrule.setPriority(ps.getAndIncrement());
+				}
+				sheet.add(rule);
+			}
+			sheet.markLast(ps.markAndIncrement());
+		}
+		return sheet;
 	}
 	
 	// creates the tree parser
