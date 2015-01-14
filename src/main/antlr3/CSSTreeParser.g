@@ -224,7 +224,13 @@ scope {
 		   $stmnt = preparator.prepareRuleMedia(rules, mediaList);
 		   this.preventImports = true;
 	   }
+	| other=otheratstatement { $stmnt = other; }
 	;
+
+otheratstatement returns [cz.vutbr.web.css.RuleBlock<?> stmnt]
+@init { $stmnt = null; }
+    : INVALID_ATSTATEMENT { log.debug("Skipping invalid at statement"); }
+    ;
 
 import_uri returns [String s]
   : (uri=URI) { s = extractText(uri); }

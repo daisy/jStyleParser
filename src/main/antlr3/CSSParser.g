@@ -109,13 +109,17 @@ atstatement
 	  RCURLY -> ^(FONTFACE declarations)
 	| MEDIA S* media? 
 		LCURLY S* (media_rule S*)* RCURLY -> ^(MEDIA media? media_rule*)	
-	| ATKEYWORD S* LCURLY any* RCURLY -> INVALID_STATEMENT
+	| otheratstatement
 	;
 	catch [RecognitionException re] {
       	final BitSet follow = BitSet.of(RCURLY, SEMICOLON);								
-	    retval.tree = tnr.invalidFallbackGreedy(INVALID_STATEMENT, 
-	  		"INVALID_STATEMENT", follow, re);							
+	    retval.tree = tnr.invalidFallbackGreedy(INVALID_ATSTATEMENT, 
+	  		"INVALID_ATSTATEMENT", follow, re);							
 	}
+
+otheratstatement
+    : ATKEYWORD S* LCURLY any* RCURLY -> INVALID_ATSTATEMENT
+    ;
 
 import_uri
   : (STRING | URI)
