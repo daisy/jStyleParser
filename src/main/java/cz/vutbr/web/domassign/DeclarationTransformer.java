@@ -111,14 +111,14 @@ import cz.vutbr.web.css.Term.Operator;
  */
 public class DeclarationTransformer {
 
-	private static Logger log = LoggerFactory
+	protected static Logger log = LoggerFactory
 			.getLogger(DeclarationTransformer.class);
 
 	/**
 	 * Inherit acceptance flags
 	 */
-	private static final boolean AVOID_INH = true;
-	private static final boolean ALLOW_INH = false;
+	protected static final boolean AVOID_INH = true;
+	protected static final boolean ALLOW_INH = false;
 
 	/**
 	 * Cache of parsing methods
@@ -130,8 +130,8 @@ public class DeclarationTransformer {
 	 */
 	private static final DeclarationTransformer instance;
 
-	private static final TermFactory tf = CSSFactory.getTermFactory();
-	private static final SupportedCSS css = CSSFactory.getSupportedCSS();
+	protected static final TermFactory tf = CSSFactory.getTermFactory();
+	private final SupportedCSS css = CSSFactory.getSupportedCSS();
 
 	static {
 		instance = new DeclarationTransformer();
@@ -226,7 +226,7 @@ public class DeclarationTransformer {
 	/**
 	 * Sole constructor
 	 */
-	private DeclarationTransformer() {
+	protected DeclarationTransformer() {
 		this.methods = parsingMethods();
 	}
 

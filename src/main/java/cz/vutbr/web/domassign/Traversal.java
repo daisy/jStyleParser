@@ -36,7 +36,7 @@ public abstract class Traversal<T>
 
         // tree traversal as nodes are found inside
         Node current, checkpoint = null;
-        current = walker.nextNode();
+        current = walker.getCurrentNode();
         while (current != null) {
             // this method can change position in walker
             checkpoint = walker.getCurrentNode();
