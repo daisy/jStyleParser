@@ -57,6 +57,10 @@ public class SelectorTest extends TestCase {
 
 	public static final String TEST_ATTRIB_PRESENCE = "*[href] { text-decoration: underline}";
 
+	public static final String TEST_NAMESPACE_1 = "|p { display: block;}";
+
+	public static final String TEST_NAMESPACE_2 = "@namespace foo url(http://example.com/ns/); foo|p { display: block;}";
+
 	@BeforeClass
 	public static void init() {
 		log.info("\n\n\n == SelectorTest test at {} == \n\n\n", new Date());
@@ -378,7 +382,7 @@ public class SelectorTest extends TestCase {
 				.size());
 
 		assertEquals("CombinedSelector contains element name", "H1", s.get(0)
-				.getElementName());
+				.getElementName().toString());
 
 		// DIV
 		s = cslist.get(1);
@@ -387,7 +391,7 @@ public class SelectorTest extends TestCase {
 				.size());
 
 		assertEquals("CombinedSelector contains element name", "DIV", s.get(0)
-				.getElementName());
+				.getElementName().toString());
 	}
 
 	@Test
@@ -415,5 +419,44 @@ public class SelectorTest extends TestCase {
 						.asList());
 
 	}
-
+	
+	@Test
+	public void testNamespace1() throws CSSException, IOException {
+		
+		StyleSheet ss = CSSFactory.parseString(TEST_NAMESPACE_1, null);
+		assertEquals("One rule is set", 1, ss.size());
+		
+		List<CombinedSelector> cslist = SelectorsUtil.appendCS(null);
+		SelectorsUtil.appendSimpleSelector(cslist, null, null, rf
+				.createElement("*").setName("", "p"));
+		
+		assertEquals("Rule 1 contains one combined selector |p", cslist,
+				((RuleSet) ss.get(0)).getSelectors());
+		
+		assertEquals(
+				"Rule contains one declaration { display:block }",
+				DeclarationsUtil.appendDeclaration(null, "display", tf
+						.createIdent("block")), ((RuleSet) ss.get(0))
+						.asList());
+	}
+	
+	@Test
+	public void testNamespace2() throws CSSException, IOException {
+		
+		StyleSheet ss = CSSFactory.parseString(TEST_NAMESPACE_2, null);
+		assertEquals("One rule is set", 1, ss.size());
+		
+		List<CombinedSelector> cslist = SelectorsUtil.appendCS(null);
+		SelectorsUtil.appendSimpleSelector(cslist, null, null, rf
+				.createElement("*").setName("http://example.com/ns/", "p", "foo"));
+		
+		assertEquals("Rule 1 contains one combined selector foo|p", cslist,
+				((RuleSet) ss.get(0)).getSelectors());
+		
+		assertEquals(
+				"Rule contains one declaration { display:block }",
+				DeclarationsUtil.appendDeclaration(null, "display", tf
+						.createIdent("block")), ((RuleSet) ss.get(0))
+						.asList());
+	}
 }

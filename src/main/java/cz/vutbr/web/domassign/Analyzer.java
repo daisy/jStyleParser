@@ -249,7 +249,7 @@ public class Analyzer {
 		log.trace("After IDs {} total candidates.", candidates.size());
 		
 		// match elements
-		String name = ElementUtil.elementName(e);
+		String name = e.getLocalName();
 		if (name != null) {
 			List<OrderedRule> rules = holder.get(HolderItem.ELEMENT, name.toLowerCase());
 			if (rules != null)
@@ -471,14 +471,14 @@ public class Analyzer {
 			Selector last = selector.getLastSelector();
 
 			// is element or other (wildcard)
-			String element = last.getElementName();
+			Selector.ElementName element = last.getElementName();
 			if (element != null) {
 				// wildcard
-				if (Selector.ElementName.WILDCARD.equals(element))
+				if (Selector.ElementName.WILDCARD.equals(element.getLocalName()))
 					hs.add(new HolderSelector(HolderItem.OTHER, null));
 				// element
 				else
-					hs.add(new HolderSelector(HolderItem.ELEMENT, element
+					hs.add(new HolderSelector(HolderItem.ELEMENT, element.getLocalName()
 							.toLowerCase()));
 			}
 

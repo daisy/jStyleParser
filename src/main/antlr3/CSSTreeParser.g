@@ -19,6 +19,8 @@ options {
 	private cz.vutbr.web.css.RuleList rules;
 	private List<List<cz.vutbr.web.css.MediaQuery>> importMedia;
 	private List<String> importPaths;
+	private String defaultNamespace;
+	private java.util.Map<String,String> namespaces;
 	
 	//prevent imports inside the style sheet
 	private boolean preventImports;
@@ -38,6 +40,7 @@ options {
 		this.importMedia = new ArrayList<List<cz.vutbr.web.css.MediaQuery>>();
 		this.importPaths = new ArrayList<String>();
 		this.preventImports = false;
+		this.namespaces = new java.util.HashMap<String,String>();
 		this.log = org.slf4j.LoggerFactory.getLogger(getClass());
 	}   
   
@@ -186,6 +189,23 @@ scope {
 		  else 
         log.debug("Ignoring import: {}", iuri);
 	  }
+	| ^(NAMESPACE
+	      (prf=namespace_prefix)?
+	      (ns=namespace_uri)
+	   )
+	  {
+	    if (prf == null) {
+	      if (defaultNamespace != null)
+	        log.warn("Default namespace already declared");
+	      log.debug("Declaring default namespace: url({})", ns);
+	      defaultNamespace = ns;
+	    } else {
+	      if (namespaces.containsKey(prf))
+	        log.warn("Namespace for prefix {} already declared", prf);
+	      log.debug("Declaring namespace: {} url({})", prf, ns);
+	      namespaces.put(prf, ns);
+	    }
+	  }
   | ^(PAGE
       (i=IDENT
         { name = extractText(i); }
@@ -239,6 +259,15 @@ unknown_atrule returns [cz.vutbr.web.css.RuleBlock<?> stmnt]
 import_uri returns [String s]
   : (uri=URI) { s = extractText(uri); }
   | (str=STRING) { s = extractTextUnescaped(str); }
+  ;
+
+namespace_prefix returns [String prf]
+  : (i=IDENT) { $prf = extractText(i); }
+  ;
+
+namespace_uri returns [String s]
+  : (uri=URI) { $s = extractText(uri); }
+  | (str=STRING) { $s = extractTextUnescaped(str); }
   ;
 
 margin returns [cz.vutbr.web.css.RuleMargin m]
@@ -667,12 +696,30 @@ scope {
 	logLeave("selector");
 }
     : ^(SELECTOR 
-        ^(ELEMENT 
-          (i=IDENT { en.setName(extractText(i)); }
-          )?         
+        ^(ELEMENT
+           (
+             (i=IDENT {
+                if (defaultNamespace != null)
+                    en.setName(defaultNamespace, extractText(i));
+                else
+                    en.setName(extractText(i));
+             })?
+             |
+             (BAR i=IDENT {
+                en.setName("", extractText(i));
+             })
+             |
+             (prf=namespace_prefix BAR i=IDENT {
+                if (!namespaces.containsKey(prf)) {
+                  log.error("No namespace declared for prefix {}", prf);
+                  $statement::invalid = true;
+                } else
+                  en.setName(namespaces.get(prf), extractText(i), prf);
+             })
+           )
          ){
-		  log.debug("Adding element name: {}.", en.getName());
-		  $selector::s.add(en);
+		  log.debug("Adding element name: {}.", en);
+		  $selector::s.add(en.lock());
 		 }
          selpart*
        )

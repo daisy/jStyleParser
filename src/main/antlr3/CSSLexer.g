@@ -186,6 +186,10 @@ IMPORT
 	: '@import' 
 	;
 
+NAMESPACE
+	: '@namespace' 
+	;
+
 MEDIA
 	: '@media'
 	;
@@ -426,6 +430,10 @@ INCLUDES
 
 DASHMATCH
 	: '|='
+	;
+
+BAR
+	: '|'
 	;
 
 STARTSWITH

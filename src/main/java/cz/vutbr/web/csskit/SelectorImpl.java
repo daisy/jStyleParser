@@ -72,11 +72,11 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
         return idName;
     }
     
-    public String getElementName() {
-    	String elementName = null;
+    public ElementName getElementName() {
+    	ElementName elementName = null;
     	for(SelectorPart item : list) {
     		if(item instanceof ElementName)
-    			elementName = ((ElementName)item).getName();
+    			elementName = (ElementName)item;
     	}
     	return elementName;
     }
@@ -165,42 +165,119 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
     // implementation of intern classes	
 
 	/**
-     * Element name
-     * @author kapy
-     */
-    public static class ElementNameImpl implements ElementName {    	 
+	 * Element name
+	 * @author kapy, bfrees
+	 */
+	public static class ElementNameImpl implements ElementName {
 		
-    	private String name; 
-    	
-    	protected ElementNameImpl(String name) {
-    		setName(name);
-    	}
-    	
+		private String localName;
+		private String namespaceURI = null;
+		private String prefix = null;
+		private boolean locked = false;
+		
+		protected ElementNameImpl(String localName) {
+			setName(localName);
+		}
+		
 		public void computeSpecificity(CombinedSelector.Specificity spec) {
-			if(!WILDCARD.equals(name))
+			if(!WILDCARD.equals(localName))
 				spec.add(Level.D);
 		}
 		
 		public boolean matches(Element e, MatchCondition cond) {
-			if(name!=null && WILDCARD.equals(name)) return true;
-			return ElementUtil.matchesName(e, name);
-		}	
-		
-		public String getName() {
-			return name;
+			if(localName.equals(WILDCARD))
+				return true;
+			else if (namespaceURI == null)
+				return localName.equalsIgnoreCase(e.getLocalName());
+			else {
+				String elementNS = e.getNamespaceURI();
+				if (elementNS == null) elementNS = "";
+				return localName.equalsIgnoreCase(e.getLocalName())
+					&& namespaceURI.equals(elementNS);
+				
+			}
 		}
 		
-		public ElementName setName(String name) {
-			if(name == null)
-				throw new IllegalArgumentException("Invalid element name (null)");
-				
-			this.name = name;
+		public String getLocalName() {
+			return localName;
+		}
+		
+		public String getNamespaceURI() {
+			return namespaceURI;
+		}
+		
+		public String getPrefix() {
+			return prefix;
+		}
+		
+		public ElementName setName(String localName) {
+			if (locked)
+				throw new UnsupportedOperationException("Immutable object");
+			if (localName == null)
+				throw new IllegalArgumentException("Invalid localName (null)");
+			if (localName.equals(""))
+				throw new IllegalArgumentException("Invalid localName (empty)");
+			this.localName = localName;
+			this.namespaceURI = null;
+			this.prefix = null;
+			return this;
+		}
+		
+		public ElementName setName(String namespaceURI, String localName) {
+			if (locked)
+				throw new UnsupportedOperationException("Immutable object");
+			if (namespaceURI == null)
+				throw new IllegalArgumentException("Invalid namespaceURI (null)");
+			if (localName == null)
+				throw new IllegalArgumentException("Invalid localName (null)");
+			if (localName.equals(""))
+				throw new IllegalArgumentException("Invalid localName (empty)");
+			if (localName.equals(WILDCARD))
+				throw new IllegalArgumentException("Invalid localName (" + WILDCARD + ")");
+			this.localName = localName;
+			this.namespaceURI = namespaceURI;
+			this.prefix = null;
+			return this;
+		}
+		
+		public ElementName setName(String namespaceURI, String localName, String prefix) {
+			if (locked)
+				throw new UnsupportedOperationException("Immutable object");
+			if (namespaceURI == null)
+				throw new IllegalArgumentException("Invalid namespaceURI (null)");
+			if (namespaceURI.equals(""))
+				throw new IllegalArgumentException("Invalid namespaceURI (empty)");
+			if (localName == null)
+				throw new IllegalArgumentException("Invalid localName (null)");
+			if (localName.equals(""))
+				throw new IllegalArgumentException("Invalid localName (empty)");
+			if (localName.equals(WILDCARD))
+				throw new IllegalArgumentException("Invalid localName (" + WILDCARD + ")");
+			if (prefix == null)
+				throw new IllegalArgumentException("Invalid prefix (null)");
+			if (prefix.equals(""))
+				throw new IllegalArgumentException("Invalid prefix (empty)");
+			this.localName = localName;
+			this.namespaceURI = namespaceURI;
+			this.prefix = prefix;
+			return this;
+		}
+		
+		public ElementName lock() {
+			locked = true;
 			return this;
 		}
 		
 		@Override
 		public String toString() {
-			return name;
+			if (namespaceURI == null)
+				return localName;
+			else if (namespaceURI.equals(""))
+				return "|" + localName;
+			else if (prefix != null)
+				return prefix + "|" + localName;
+			else
+				return localName;
 		}
 
 		/* (non-Javadoc)
@@ -210,7 +287,9 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ((name == null) ? 0 : name.hashCode());
+			result = prime * result + ((localName == null) ? 0 : localName.hashCode());
+			result = prime * result + ((namespaceURI == null) ? 0 : namespaceURI.hashCode());
+			result = prime * result + ((prefix == null) ? 0 : prefix.hashCode());
 			return result;
 		}
 
@@ -226,10 +305,20 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
 			if (!(obj instanceof ElementNameImpl))
 				return false;
 			ElementNameImpl other = (ElementNameImpl) obj;
-			if (name == null) {
-				if (other.name != null)
+			if (localName == null) {
+				if (other.localName != null)
 					return false;
-			} else if (!name.equals(other.name))
+			} else if (!localName.equals(other.localName))
+				return false;
+			if (namespaceURI == null) {
+				if (other.namespaceURI != null)
+					return false;
+			} else if (!namespaceURI.equals(other.namespaceURI))
+				return false;
+			if (prefix == null) {
+				if (other.prefix != null)
+					return false;
+			} else if (!prefix.equals(other.prefix))
 				return false;
 			return true;
 		}

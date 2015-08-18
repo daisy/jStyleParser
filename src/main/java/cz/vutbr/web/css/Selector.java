@@ -134,7 +134,7 @@ public interface Selector extends Rule<Selector.SelectorPart> {
      * Name of HTML element which is affected by this selector
      * @return Name of HTML element
      */
-    public String getElementName();
+    public ElementName getElementName();
     
     /**
      * Reads the pseudoelement of the selector 
@@ -175,13 +175,51 @@ public interface Selector extends Rule<Selector.SelectorPart> {
     
     /**
      * Element name
-     * @author kapy
+     * @author kapy, bfrees
      *
      */
     public interface ElementName extends SelectorPart {
     	public static final String WILDCARD = "*";    	
-    	public String getName();
-    	public ElementName setName(String name);
+    	/**
+    	 * @return localName. WILDCARD means any name.
+    	 */
+    	public String getLocalName();
+    	/**
+    	 * @return namespaceURI. null means any namespace, "" means no namespace.
+    	 */
+    	public String getNamespaceURI();
+    	/**
+    	 * @return prefix. null means undefined prefix.
+    	 */
+    	public String getPrefix();
+    	/**
+    	 * Sets localName to localName, namespaceURI to any (null), and prefix to undefined
+    	 * (null).
+    	 * @param localName
+    	 * @throws IllegalArgumentException if localName is null or "".
+    	 */
+    	public ElementName setName(String localName);
+    	/**
+    	 * Sets namespaceURI to namespaceURI, localName to localName, and prefix to undefined.
+    	 * @param namespaceURI
+    	 * @param localName
+    	 * @throws IllegalArgumentException if namespaceURI is null, or if localName is null, "" or
+    	 * WILDCARD.
+    	 */
+    	public ElementName setName(String namespaceURI, String localName);
+    	/**
+    	 * Sets namespaceURI to namespaceURI, localName to localName, and prefix to prefix.
+    	 * @param namespaceURI
+    	 * @param localName
+    	 * @param prefix
+    	 * @throws IllegalArgumentException if namespaceURI is null or "", if localName is null, ""
+    	 * or WILDCARD, or if prefix is null or "".
+    	 */
+    	public ElementName setName(String namespaceURI, String localName, String prefix);
+    	/**
+    	 * Make immutable.
+    	 */
+    	public ElementName lock();
     }
     
     /**

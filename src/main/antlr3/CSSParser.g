@@ -100,6 +100,7 @@ atstatement
 	: CHARSET
 	| IMPORT S* import_uri S* media? SEMICOLON
 	  -> ^(IMPORT media? import_uri)  
+	| namespace
 	| page
   | VIEWPORT S*
     LCURLY S* declarations
@@ -120,6 +121,19 @@ atstatement
 import_uri
   : (STRING | URI)
   ;
+
+namespace
+    : NAMESPACE S* (namespace_prefix S*)? namespace_uri S* SEMICOLON
+        -> ^(NAMESPACE namespace_prefix? namespace_uri)
+    ;
+
+namespace_prefix
+    : IDENT
+    ;
+
+namespace_uri
+    : (STRING | URI)
+    ;
 
 page
 	: PAGE S* (( IDENT | IDENT page_pseudo | page_pseudo) S*) ?
@@ -321,6 +335,8 @@ combinator
 selector
     : (IDENT | ASTERISK)  selpart* S*
     	-> ^(SELECTOR ^(ELEMENT IDENT?) selpart*)
+    | namespace_prefix? BAR IDENT selpart* S*
+    	-> ^(SELECTOR ^(ELEMENT namespace_prefix? BAR IDENT) selpart*)
     | selpart+ S*
         -> ^(SELECTOR selpart+)
     ;
