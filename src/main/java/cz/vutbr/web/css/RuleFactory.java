@@ -123,6 +123,15 @@ public interface RuleFactory {
 	Selector.ElementName createElement(String elementName);
 
 	/**
+	 * Creates CSS selector part, element name
+	 * @param namespaceURI Namespace of element
+	 * @param localName Local name of element
+	 * @param prefix Prefix of element
+	 * @return New CSS element name selector part
+	 */
+	Selector.ElementName createElement(String namespaceURI, String localName, String prefix);
+
+	/**
 	 * Creates CSS selector part, element attribute
 	 * @param value Value of attribute
 	 * @param isStringValue Value given is string or identifier

@@ -179,7 +179,7 @@ public interface Selector extends Rule<Selector.SelectorPart> {
      *
      */
     public interface ElementName extends SelectorPart {
-    	public static final String WILDCARD = "*";    	
+    	public static final String WILDCARD = "*";
     	/**
     	 * @return localName. WILDCARD means any name.
     	 */
@@ -189,31 +189,18 @@ public interface Selector extends Rule<Selector.SelectorPart> {
     	 */
     	public String getNamespaceURI();
     	/**
-    	 * @return prefix. null means undefined prefix.
+    	 * @return prefix. null means undefined prefix. "" means no namespace. WILDCARD means any namespace.
     	 */
     	public String getPrefix();
-    	/**
-    	 * Sets localName to localName, namespaceURI to any (null), and prefix to undefined
-    	 * (null).
-    	 * @param localName
-    	 * @throws IllegalArgumentException if localName is null or "".
-    	 */
-    	public ElementName setName(String localName);
-    	/**
-    	 * Sets namespaceURI to namespaceURI, localName to localName, and prefix to undefined.
-    	 * @param namespaceURI
-    	 * @param localName
-    	 * @throws IllegalArgumentException if namespaceURI is null, or if localName is null, "" or
-    	 * WILDCARD.
-    	 */
-    	public ElementName setName(String namespaceURI, String localName);
     	/**
     	 * Sets namespaceURI to namespaceURI, localName to localName, and prefix to prefix.
     	 * @param namespaceURI
     	 * @param localName
     	 * @param prefix
-    	 * @throws IllegalArgumentException if namespaceURI is null or "", if localName is null, ""
-    	 * or WILDCARD, or if prefix is null or "".
+    	 * @throws IllegalArgumentException if localName is null or "",
+    	 *                                  if namespaceURI is null and prefix is not WILDCARD or null,
+    	 *                                  if prefix is "" and namespaceURI is not "", or
+    	 *                                  if prefix is WILDCARD and namespaceURI is not null.
     	 */
     	public ElementName setName(String namespaceURI, String localName, String prefix);
     	/**

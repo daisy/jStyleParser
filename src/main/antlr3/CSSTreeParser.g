@@ -690,37 +690,51 @@ scope {
 @init {
 	logEnter("selector");
 	$selector::s=$sel=(cz.vutbr.web.css.Selector)rf.createSelector().unlock();
-	cz.vutbr.web.css.Selector.ElementName en = rf.createElement(cz.vutbr.web.css.Selector.ElementName.WILDCARD);
+	String name = null;
+	String ns = null;
+	String prf = null;
 }
 @after {
 	logLeave("selector");
 }
-    : ^(SELECTOR 
+    : ^(SELECTOR
         ^(ELEMENT
            (
-             (i=IDENT {
-                if (defaultNamespace != null)
-                    en.setName(defaultNamespace, extractText(i));
-                else
-                    en.setName(extractText(i));
-             })?
+            ^(PREFIX (
+               p=namespace_prefix { prf = p; }
+               |
+               ASTERISK { prf = cz.vutbr.web.css.Selector.ElementName.WILDCARD; }
+             )?) {
+               if (prf == null) prf = "";
+             }
+           )?
+           (
+             i=IDENT { name = extractText(i); }
              |
-             (BAR i=IDENT {
-                en.setName("", extractText(i));
-             })
-             |
-             (prf=namespace_prefix BAR i=IDENT {
-                if (!namespaces.containsKey(prf)) {
-                  log.error("No namespace declared for prefix {}", prf);
-                  $statement::invalid = true;
-                } else
-                  en.setName(namespaces.get(prf), extractText(i), prf);
-             })
+             ASTERISK { name = cz.vutbr.web.css.Selector.ElementName.WILDCARD; }
            )
-         ){
-		  log.debug("Adding element name: {}.", en);
-		  $selector::s.add(en.lock());
-		 }
+         ) {
+             if (prf == null) {
+                 if (defaultNamespace != null)
+                     ns = defaultNamespace;
+                 else
+                     ns = null;
+             } else if (prf.equals("")) {
+                 ns = "";
+             } else if (prf.equals(cz.vutbr.web.css.Selector.ElementName.WILDCARD)) {
+                 ns = null;
+             } else if (namespaces.containsKey(prf)) {
+                 ns = namespaces.get(prf);
+             } else {
+                 log.error("No namespace declared for prefix {}", prf);
+                 $statement::invalid = true;
+             }
+             if (!$statement::invalid) {
+                 cz.vutbr.web.css.Selector.ElementName en = rf.createElement(ns, name, prf);
+                 log.debug("Adding element name: {}.", en);
+                 $selector::s.add(en.lock());
+             }
+         }
          selpart*
        )
     | ^(SELECTOR 

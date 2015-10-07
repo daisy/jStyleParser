@@ -332,11 +332,19 @@ combinator
 	| S -> DESCENDANT
 	;
 
+element
+    : element_prefix? (IDENT | ASTERISK)
+        -> ^(ELEMENT element_prefix? IDENT? ASTERISK?)
+    ;
+
+element_prefix
+    : (namespace_prefix | ASTERISK)? BAR
+        -> ^(PREFIX namespace_prefix? ASTERISK?)
+    ;
+
 selector
-    : (IDENT | ASTERISK)  selpart* S*
-    	-> ^(SELECTOR ^(ELEMENT IDENT?) selpart*)
-    | namespace_prefix? BAR IDENT selpart* S*
-    	-> ^(SELECTOR ^(ELEMENT namespace_prefix? BAR IDENT) selpart*)
+    : element selpart* S*
+        -> ^(SELECTOR element selpart*)
     | selpart+ S*
         -> ^(SELECTOR selpart+)
     ;

@@ -428,7 +428,7 @@ public class SelectorTest extends TestCase {
 		
 		List<CombinedSelector> cslist = SelectorsUtil.appendCS(null);
 		SelectorsUtil.appendSimpleSelector(cslist, null, null, rf
-				.createElement("*").setName("", "p"));
+				.createElement("", "p", ""));
 		
 		assertEquals("Rule 1 contains one combined selector |p", cslist,
 				((RuleSet) ss.get(0)).getSelectors());
@@ -448,7 +448,7 @@ public class SelectorTest extends TestCase {
 		
 		List<CombinedSelector> cslist = SelectorsUtil.appendCS(null);
 		SelectorsUtil.appendSimpleSelector(cslist, null, null, rf
-				.createElement("*").setName("http://example.com/ns/", "p", "foo"));
+				.createElement("http://example.com/ns/", "p", "foo"));
 		
 		assertEquals("Rule 1 contains one combined selector foo|p", cslist,
 				((RuleSet) ss.get(0)).getSelectors());

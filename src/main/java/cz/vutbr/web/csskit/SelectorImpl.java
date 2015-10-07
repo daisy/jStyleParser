@@ -171,12 +171,12 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
 	public static class ElementNameImpl implements ElementName {
 		
 		private String localName;
-		private String namespaceURI = null;
-		private String prefix = null;
+		private String namespaceURI;
+		private String prefix;
 		private boolean locked = false;
 		
-		protected ElementNameImpl(String localName) {
-			setName(localName);
+		protected ElementNameImpl(String namespaceURI, String localName, String prefix) {
+			setName(namespaceURI, localName, prefix);
 		}
 		
 		public void computeSpecificity(CombinedSelector.Specificity spec) {
@@ -184,18 +184,25 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
 				spec.add(Level.D);
 		}
 		
-		public boolean matches(Element e, MatchCondition cond) {
-			if(localName.equals(WILDCARD))
+		private boolean matchesLocalName(Element e) {
+			if (localName.equals(WILDCARD))
 				return true;
-			else if (namespaceURI == null)
+			else
 				return localName.equalsIgnoreCase(e.getLocalName());
+		}
+		
+		private boolean matchesNamespaceURI(Element e) {
+			if (namespaceURI == null)
+				return true;
 			else {
 				String elementNS = e.getNamespaceURI();
 				if (elementNS == null) elementNS = "";
-				return localName.equalsIgnoreCase(e.getLocalName())
-					&& namespaceURI.equals(elementNS);
-				
+				return namespaceURI.equals(elementNS);
 			}
+		}
+		
+		public boolean matches(Element e, MatchCondition cond) {
+			return matchesLocalName(e) && matchesNamespaceURI(e);
 		}
 		
 		public String getLocalName() {
@@ -210,53 +217,16 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
 			return prefix;
 		}
 		
-		public ElementName setName(String localName) {
-			if (locked)
-				throw new UnsupportedOperationException("Immutable object");
-			if (localName == null)
-				throw new IllegalArgumentException("Invalid localName (null)");
-			if (localName.equals(""))
-				throw new IllegalArgumentException("Invalid localName (empty)");
-			this.localName = localName;
-			this.namespaceURI = null;
-			this.prefix = null;
-			return this;
-		}
-		
-		public ElementName setName(String namespaceURI, String localName) {
-			if (locked)
-				throw new UnsupportedOperationException("Immutable object");
-			if (namespaceURI == null)
-				throw new IllegalArgumentException("Invalid namespaceURI (null)");
-			if (localName == null)
-				throw new IllegalArgumentException("Invalid localName (null)");
-			if (localName.equals(""))
-				throw new IllegalArgumentException("Invalid localName (empty)");
-			if (localName.equals(WILDCARD))
-				throw new IllegalArgumentException("Invalid localName (" + WILDCARD + ")");
-			this.localName = localName;
-			this.namespaceURI = namespaceURI;
-			this.prefix = null;
-			return this;
-		}
-		
 		public ElementName setName(String namespaceURI, String localName, String prefix) {
 			if (locked)
 				throw new UnsupportedOperationException("Immutable object");
-			if (namespaceURI == null)
-				throw new IllegalArgumentException("Invalid namespaceURI (null)");
-			if (namespaceURI.equals(""))
-				throw new IllegalArgumentException("Invalid namespaceURI (empty)");
-			if (localName == null)
-				throw new IllegalArgumentException("Invalid localName (null)");
-			if (localName.equals(""))
-				throw new IllegalArgumentException("Invalid localName (empty)");
-			if (localName.equals(WILDCARD))
-				throw new IllegalArgumentException("Invalid localName (" + WILDCARD + ")");
-			if (prefix == null)
-				throw new IllegalArgumentException("Invalid prefix (null)");
-			if (prefix.equals(""))
-				throw new IllegalArgumentException("Invalid prefix (empty)");
+			if (localName == null || localName.equals(""))
+				throw new IllegalArgumentException("Invalid localName (" + localName + ")");
+			if ("".equals(prefix) && !"".equals(namespaceURI)
+			    || WILDCARD.equals(prefix) && namespaceURI != null
+			    || namespaceURI == null && prefix != null && !prefix.equals(WILDCARD))
+				throw new IllegalArgumentException("Invalid combination of prefix (" + prefix + ")"
+				                                   + " and namespaceURI (" + namespaceURI + ")");
 			this.localName = localName;
 			this.namespaceURI = namespaceURI;
 			this.prefix = prefix;
@@ -270,11 +240,7 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
 		
 		@Override
 		public String toString() {
-			if (namespaceURI == null)
-				return localName;
-			else if (namespaceURI.equals(""))
-				return "|" + localName;
-			else if (prefix != null)
+			if (prefix != null)
 				return prefix + "|" + localName;
 			else
 				return localName;

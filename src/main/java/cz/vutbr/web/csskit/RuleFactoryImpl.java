@@ -137,7 +137,11 @@ public class RuleFactoryImpl implements RuleFactory {
 	}
 
 	public ElementName createElement(String elementName) {
-		return new SelectorImpl.ElementNameImpl(elementName);
+		return new SelectorImpl.ElementNameImpl(null, elementName, null);
+	}
+	
+	public ElementName createElement(String namespaceURI, String localName, String prefix) {
+		return new SelectorImpl.ElementNameImpl(namespaceURI, localName, prefix);
 	}
 	
 	public ElementDOM createElementDOM(Element e, boolean inlinePriority) {
