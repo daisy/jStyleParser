@@ -143,6 +143,20 @@ public interface RuleFactory {
 			boolean isStringValue, Operator operator, String attribute);
 
 	/**
+	 * Creates CSS selector part, element attribute
+	 * @param value Value of attribute
+	 * @param isStringValue Value given is string or identifier
+	 * @param operator Operator between value and attribute
+	 * @param namespaceURI Namespace of attribute
+	 * @param localName Local name of attribute
+	 * @param prefix Prefix of attribute
+	 * @return New CSS element attribute selector part
+	 */
+	Selector.ElementAttribute createAttribute(String value,
+			boolean isStringValue, Operator operator,
+			String namespaceURI, String localName, String prefix);
+
+	/**
 	 * Creates CSS selector part, element class
 	 * @param className Name of class
 	 * @return New CSS element class selector part

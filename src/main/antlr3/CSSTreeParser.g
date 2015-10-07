@@ -765,22 +765,40 @@ selpart
 attribute returns [cz.vutbr.web.css.Selector.ElementAttribute elemAttr]
 @init {
     logEnter("attribute");
-    String attribute = null;
+    String name = null;
+    String ns = null;
+    String prf = null;
 	String value = null;
 	cz.vutbr.web.css.Selector.Operator op = cz.vutbr.web.css.Selector.Operator.NO_OPERATOR;
 	boolean isStringValue = false;
 }
 @after{
-    if(attribute!=null) {
-		$elemAttr = rf.createAttribute(value, isStringValue, op, attribute);
-	}
-	else {
-	    log.debug("Invalid attribute element in selector");
-	    $combined_selector::invalid = true;
-	}
+    if (prf == null || prf.equals(""))
+        ns = "";
+    else if (prf.equals(cz.vutbr.web.css.Selector.ElementAttribute.WILDCARD))
+        ns = null;
+    else if (namespaces.containsKey(prf))
+        ns = namespaces.get(prf);
+    else {
+        log.error("No namespace declared for prefix {}", prf);
+        $combined_selector::invalid = true;
+    }
+    if (!$combined_selector::invalid) {
+        $elemAttr = rf.createAttribute(value, isStringValue, op, ns, name, prf);
+    }
     logLeave("attribute");
 }
-	: i=IDENT {attribute=extractText(i); }
+
+	: (
+	   ^(PREFIX (
+	      p=namespace_prefix { prf = p; }
+	      |
+	      ASTERISK { prf = cz.vutbr.web.css.Selector.ElementAttribute.WILDCARD; }
+	    )?) {
+	      if (prf == null) prf = "";
+	    }
+	  )?
+	  i=IDENT {name=extractText(i); }
 	  ((EQUALS {op=cz.vutbr.web.css.Selector.Operator.EQUALS; } 
 	   | INCLUDES {op=cz.vutbr.web.css.Selector.Operator.INCLUDES; } 
 	   | DASHMATCH {op=cz.vutbr.web.css.Selector.Operator.DASHMATCH; }

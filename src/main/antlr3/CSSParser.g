@@ -333,11 +333,11 @@ combinator
 	;
 
 element
-    : element_prefix? (IDENT | ASTERISK)
-        -> ^(ELEMENT element_prefix? IDENT? ASTERISK?)
+    : prefix? (IDENT | ASTERISK)
+        -> ^(ELEMENT prefix? IDENT? ASTERISK?)
     ;
 
-element_prefix
+prefix
     : (namespace_prefix | ASTERISK)? BAR
         -> ^(PREFIX namespace_prefix? ASTERISK?)
     ;
@@ -364,7 +364,7 @@ selpart
 	  }
 
 attribute
-	: IDENT S!*
+	: prefix? IDENT S!*
 	  ((EQUALS | INCLUDES | DASHMATCH | STARTSWITH | ENDSWITH | CONTAINS) S!* (IDENT | string) S!*)?
 	;
 

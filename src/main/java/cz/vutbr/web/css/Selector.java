@@ -215,9 +215,30 @@ public interface Selector extends Rule<Selector.SelectorPart> {
      *
      */
     public interface ElementAttribute extends SelectorPart {
-    	
-    	public String getAttribute();
-    	public ElementAttribute setAttribute(String attribute);
+    	public static final String WILDCARD = "*";
+    	/**
+    	 * @return localName.
+    	 */
+    	public String getLocalName();
+    	/**
+    	 * @return namespaceURI. null means any namespace, "" means no namespace.
+    	 */
+    	public String getNamespaceURI();
+    	/**
+    	 * @return prefix. null means undefined prefix. "" means no namespace. WILDCARD means any namespace.
+    	 */
+    	public String getPrefix();
+    	/**
+    	 * Sets namespaceURI to namespaceURI, localName to localName, and prefix to prefix.
+    	 * @param namespaceURI
+    	 * @param localName
+    	 * @param prefix
+    	 * @throws IllegalArgumentException if localName is null or "",
+    	 *                                  if namespaceURI is null and prefix is not WILDCARD,
+    	 *                                  if prefix is WILDCARD and namespaceURI is not null,
+    	 *                                  if prefix is "" or null and namespaceURI is not "".
+    	 */
+    	public ElementAttribute setAttribute(String namespaceURI, String localName, String prefix);
     	
     	public String getValue();
     	public ElementAttribute setValue(String value);

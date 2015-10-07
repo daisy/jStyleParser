@@ -3,8 +3,11 @@ package cz.vutbr.web.csskit;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 
 import cz.vutbr.web.css.Selector;
@@ -104,9 +107,23 @@ public class ElementUtil {
 		    return name.equalsIgnoreCase(elementName(e));
 	}
 	
-	public static boolean matchesAttribute(Element e, String name, String value, Selector.Operator o) 
+	public static boolean matchesAttribute(Element e, String namespaceURI, String localName, String value, Selector.Operator o) 
 	{
-	    String attributeValue = e.getAttribute(name);
+		if (namespaceURI == null) {
+			NamedNodeMap attributes = e.getAttributes();
+			Set<String> namespaces = new HashSet<String>();
+			for (int i = 0; i < attributes.getLength(); i++) {
+				Node attr = attributes.item(i);
+				String attrNS = attr.getNamespaceURI();
+				if (attrNS == null) attrNS = "";
+				namespaces.add(attrNS);
+			}
+			for (String ns : namespaces)
+				if (matchesAttribute(e, ns, localName, value, o))
+					return true;
+			return false;
+		}
+		String attributeValue = namespaceURI.equals("") ? e.getAttribute(localName) : e.getAttributeNS(namespaceURI, localName);
 	    if (attributeValue.length() >  0 && o != null)
 	    {
     		switch(o) {

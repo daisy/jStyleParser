@@ -129,7 +129,15 @@ public class RuleFactoryImpl implements RuleFactory {
 	
 	public ElementAttribute createAttribute(String value,
 			boolean isStringValue, Operator operator, String attribute) {
-		return new SelectorImpl.ElementAttributeImpl(value, isStringValue, operator, attribute);
+		return new SelectorImpl.ElementAttributeImpl(value, isStringValue, operator,
+			"", attribute, null);
+	}
+	
+	public ElementAttribute createAttribute(String value,
+			boolean isStringValue, Operator operator,
+			String namespaceURI, String localName, String prefix) {
+		return new SelectorImpl.ElementAttributeImpl(value, isStringValue, operator,
+			namespaceURI, localName, prefix);
 	}
 	
 	public ElementClass createClass(String className) {

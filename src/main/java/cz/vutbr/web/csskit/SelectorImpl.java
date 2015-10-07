@@ -240,10 +240,11 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
 		
 		@Override
 		public String toString() {
+			StringBuilder sb = new StringBuilder();
 			if (prefix != null)
-				return prefix + "|" + localName;
-			else
-				return localName;
+				sb.append(prefix + "|");
+			sb.append(localName);
+			return sb.toString();
 		}
 
 		/* (non-Javadoc)
@@ -863,14 +864,17 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
     	/** Operator between attribute and value */
     	private Operator operator;
     	
-    	private String attribute;
+    	private String localName;
+    	private String namespaceURI;
+    	private String prefix;
     	private String value;
     	private boolean isStringValue;
     	
-    	protected ElementAttributeImpl(String value, boolean isStringValue, Operator operator, String attribute) {
+    	protected ElementAttributeImpl(String value, boolean isStringValue, Operator operator,
+    			String namespaceURI, String localName, String prefix) {
     		this.isStringValue = isStringValue;
     		this.operator = operator;
-    		this.attribute = attribute;
+    		setAttribute(namespaceURI, localName, prefix);
     		setValue(value);
     	}
     	
@@ -890,20 +894,30 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
 
 
 
-		/**
-		 * @return the attribute
-		 */
-		public String getAttribute() {
-			return attribute;
+		public String getLocalName() {
+			return localName;
+		}
+
+		public String getNamespaceURI() {
+			return namespaceURI;
+		}
+
+		public String getPrefix() {
+			return prefix;
 		}
 
 
-
-		/**
-		 * @param name the attribute to set
-		 */
-		public ElementAttribute setAttribute(String name) {
-			this.attribute = name;
+		public ElementAttribute setAttribute(String namespaceURI, String localName, String prefix) {
+			if (localName == null || localName.equals(""))
+				throw new IllegalArgumentException("Invalid localName (" + localName + ")");
+			if ((prefix == null || prefix.equals("")) && !"".equals(namespaceURI)
+			    || WILDCARD.equals(prefix) && namespaceURI != null
+			    || namespaceURI == null && !WILDCARD.equals(prefix))
+				throw new IllegalArgumentException("Invalid combination of prefix (" + prefix + ")"
+				                                   + " and namespaceURI (" + namespaceURI + ")");
+			this.localName = localName;
+			this.namespaceURI = namespaceURI;
+			this.prefix = prefix;
 			return this;
 		}
 		
@@ -912,7 +926,7 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
 		}
 		
 		public boolean matches(Element e, MatchCondition cond) {
-			return ElementUtil.matchesAttribute(e, attribute, value, operator);
+			return ElementUtil.matchesAttribute(e, namespaceURI, localName, value, operator);
 		}
     	
 		public String getValue() {
@@ -928,7 +942,10 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
     	public String toString() {
     		StringBuilder sb = new StringBuilder();
     		
-    		sb.append(OutputUtil.ATTRIBUTE_OPENING).append(attribute);
+    		sb.append(OutputUtil.ATTRIBUTE_OPENING);
+    		if (prefix != null)
+    			sb.append(prefix + "|");
+    		sb.append(localName);
     		sb.append(operator.value());
 
     		if(isStringValue && value!=null)
@@ -952,7 +969,11 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
 			final int prime = 31;
 			int result = 1;
 			result = prime * result
-					+ ((attribute == null) ? 0 : attribute.hashCode());
+					+ ((localName == null) ? 0 : localName.hashCode());
+			result = prime * result
+					+ ((namespaceURI == null) ? 0 : namespaceURI.hashCode());
+			result = prime * result
+					+ ((prefix == null) ? 0 : prefix.hashCode());
 			result = prime * result + (isStringValue ? 1231 : 1237);
 			result = prime * result
 					+ ((operator == null) ? 0 : operator.hashCode());
@@ -972,10 +993,20 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
 			if (!(obj instanceof ElementAttributeImpl))
 				return false;
 			ElementAttributeImpl other = (ElementAttributeImpl) obj;
-			if (attribute == null) {
-				if (other.attribute != null)
+			if (localName == null) {
+				if (other.localName != null)
 					return false;
-			} else if (!attribute.equals(other.attribute))
+			} else if (!localName.equals(other.localName))
+				return false;
+			if (namespaceURI == null) {
+				if (other.namespaceURI != null)
+					return false;
+			} else if (!namespaceURI.equals(other.namespaceURI))
+				return false;
+			if (prefix == null) {
+				if (other.prefix != null)
+					return false;
+			} else if (!prefix.equals(other.prefix))
 				return false;
 			if (isStringValue != other.isStringValue)
 				return false;
