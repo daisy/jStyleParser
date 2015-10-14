@@ -824,7 +824,30 @@ public interface CSSProperty {
 			return text;
 		}
 	}
+	
+	public enum CounterSet implements CSSProperty {
+		list_values(""), NONE("none"), INHERIT("inherit");
 
+		private String text;
+
+		private CounterSet(String text) {
+			this.text = text;
+		}
+
+		public boolean inherited() {
+			return false;
+		}
+
+		public boolean equalsInherit() {
+			return this == INHERIT;
+		}
+
+		@Override
+		public String toString() {
+			return text;
+		}
+	}
+	
 	public enum Clear implements CSSProperty {
 		NONE("none"), LEFT("left"), RIGHT("right"), BOTH("both"), INHERIT(
 				"inherit");

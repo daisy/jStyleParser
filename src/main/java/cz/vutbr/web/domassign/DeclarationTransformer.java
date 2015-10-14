@@ -53,6 +53,7 @@ import cz.vutbr.web.css.CSSProperty.Color;
 import cz.vutbr.web.css.CSSProperty.Content;
 import cz.vutbr.web.css.CSSProperty.CounterIncrement;
 import cz.vutbr.web.css.CSSProperty.CounterReset;
+import cz.vutbr.web.css.CSSProperty.CounterSet;
 import cz.vutbr.web.css.CSSProperty.Cursor;
 import cz.vutbr.web.css.CSSProperty.Direction;
 import cz.vutbr.web.css.CSSProperty.Display;
@@ -1215,6 +1216,45 @@ public class DeclarationTransformer {
 				list.addAll(termList);
 				properties.put("counter-reset", CounterReset.list_values);
 				values.put("counter-reset", list);
+				return true;
+			}
+			return false;
+		}
+
+	}
+	
+	@SuppressWarnings("unused")
+	private boolean processCounterSet(Declaration d,
+			Map<String, CSSProperty> properties, Map<String, Term<?>> values) {
+
+		if (d.size() == 1 && genericOneIdent(CounterSet.class, d, properties)) {
+			return true;
+		}
+		// counter with sets
+		else {
+			// counters are stored there
+			Set<Term<?>> termList = new LinkedHashSet<Term<?>>();
+			String counterName = null;
+			for (Term<?> term : d.asList()) {
+				// counter name
+				if (term instanceof TermIdent) {
+					counterName = ((TermIdent) term).getValue();
+					termList.add(tf.createPair(counterName, new Integer(1)));
+				}
+				// counter set value follows counter name
+				else if (term instanceof TermInteger && counterName != null) {
+					termList.add(tf.createPair(counterName,
+							((TermInteger) term).getIntValue()));
+					counterName = null;
+				} else {
+					return false;
+				}
+			}
+			if (!termList.isEmpty()) {
+				TermList list = tf.createList(termList.size());
+				list.addAll(termList);
+				properties.put("counter-set", CounterReset.list_values);
+				values.put("counter-set", list);
 				return true;
 			}
 			return false;
