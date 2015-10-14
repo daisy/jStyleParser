@@ -1165,7 +1165,7 @@ public class DeclarationTransformer {
 				// counter reset value follows counter name
 				else if (term instanceof TermInteger && counterName != null) {
 					termList.add(tf.createPair(counterName,
-							((TermInteger) term).getValue()));
+							((TermInteger) term).getIntValue()));
 					counterName = null;
 				} else {
 					return false;
@@ -1204,7 +1204,7 @@ public class DeclarationTransformer {
 				// counter reset value follows counter name
 				else if (term instanceof TermInteger && counterName != null) {
 					termList.add(tf.createPair(counterName,
-							((TermInteger) term).getValue()));
+							((TermInteger) term).getIntValue()));
 					counterName = null;
 				} else {
 					return false;
