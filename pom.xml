@@ -198,6 +198,7 @@
 						</goals>
 						<configuration>
 							<show>protected</show>
+							<additionalparam>-Xdoclint:none</additionalparam>
 						</configuration>
 					</execution>
 				</executions>
@@ -316,6 +317,7 @@
 				<version>2.9.1</version>
 				<configuration>
 					<show>protected</show>
+					<additionalparam>-Xdoclint:none</additionalparam>
 				</configuration>
 			</plugin>
 		</plugins>
