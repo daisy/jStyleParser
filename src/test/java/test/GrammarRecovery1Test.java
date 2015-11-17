@@ -1,12 +1,11 @@
 package test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.util.Date;
-
-import junit.framework.Assert;
 
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -167,7 +166,7 @@ public class GrammarRecovery1Test {
 	public void invalidAttributeOperator() throws IOException, CSSException {
 		StyleSheet ss = CSSFactory.parseString(TEST_INVALID_ATTRIBUTE_OPERATOR, null);
 
-		Assert.assertEquals("Stylesheet is empty", 0, ss.size());
+		assertEquals("Stylesheet is empty", 0, ss.size());
 
 	}
 
@@ -185,11 +184,11 @@ public class GrammarRecovery1Test {
 
 		NodeData nd = decl.get(elements.getLastElementByName("h1"));
 
-		Assert.assertNull("There is no color", nd.getProperty("color"));
+		assertNull("There is no color", nd.getProperty("color"));
 
-		Assert.assertEquals("There is font-family", FontFamily.list_values, nd
+		assertEquals("There is font-family", FontFamily.list_values, nd
 				.getProperty("font-family"));
-		Assert.assertEquals("Font is 'Times New Roman'", tf
+		assertEquals("Font is 'Times New Roman'", tf
 				.createString("Times New Roman"), nd.getValue(TermList.class,
 				"font-family").get(0));
 
@@ -199,7 +198,7 @@ public class GrammarRecovery1Test {
 	public void invalidParen() throws IOException, CSSException {
 		StyleSheet ss = CSSFactory.parseString(TEST_INVALID_PAREN, null);
 
-		Assert.assertEquals("Stylesheet contains two rules", 2, ss.size());
+		assertEquals("Stylesheet contains two rules", 2, ss.size());
 
 	}
 	
@@ -207,7 +206,7 @@ public class GrammarRecovery1Test {
 	public void invalidSemicolon() throws IOException, CSSException {
 		StyleSheet ss = CSSFactory.parseString(TEST_INVALID_SEMICOLON, null);
 
-		Assert.assertEquals("Stylesheet contains two rules", 2, ss.size());
+		assertEquals("Stylesheet contains two rules", 2, ss.size());
 
 	}
 	
@@ -215,8 +214,8 @@ public class GrammarRecovery1Test {
     public void declarationNoValue() throws IOException, CSSException {
         StyleSheet ss = CSSFactory.parseString(TEST_NO_VALUE, null);
 
-        Assert.assertEquals("Stylesheet contains one rule", 1, ss.size());
-        Assert.assertEquals("There are two declarations in the rule", 2, ss.get(0).size());
+        assertEquals("Stylesheet contains one rule", 1, ss.size());
+        assertEquals("There are two declarations in the rule", 2, ss.get(0).size());
 
     }
 }
