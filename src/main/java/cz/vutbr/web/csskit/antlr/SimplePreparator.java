@@ -26,7 +26,7 @@ public class SimplePreparator implements Preparator {
 	protected static final Logger log = LoggerFactory
 			.getLogger(SimplePreparator.class);
 
-	private static RuleFactory rf = CSSFactory.getRuleFactory();
+	private RuleFactory rf = CSSFactory.getRuleFactory();
 
 	private Element elem;
 	private boolean inlinePriority;
