@@ -40,7 +40,7 @@ public class RuleFactoryImpl implements RuleFactory {
 		instance = new RuleFactoryImpl();
 	}
 	
-	private RuleFactoryImpl() {
+	protected RuleFactoryImpl() {
 	}
 	
 	public static final RuleFactory getInstance() {
