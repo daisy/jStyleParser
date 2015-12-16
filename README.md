@@ -14,3 +14,14 @@ in the LICENSE file.
 
 See the project page for more information and downloads:
 [http://cssbox.sourceforge.net/jstyleparser](http://cssbox.sourceforge.net/jstyleparser)
+
+Release procedure
+=================
+
+- Remove "SNAPSHOT" from the version number in `pom.xml`.
+- Build and deploy the artifact to Sonatype with `mvn clean deploy -Psonatype-oss-release`
+- Stage the artifact at https://oss.sonatype.org.
+- Do all the necessary testing.
+- Release artifact at https://oss.sonatype.org.
+- `git tag` the last commit. The tag format should be "jStyleParser-1.20-p4".
+- Bump the version number in `pom.xml` to the next snapshot.
