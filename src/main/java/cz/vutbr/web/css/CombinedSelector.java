@@ -1,6 +1,6 @@
 package cz.vutbr.web.css;
 
-import cz.vutbr.web.css.Selector.PseudoDeclaration;
+import cz.vutbr.web.css.Selector.PseudoElement;
 
 /**
  * CombinedSelector of CSS declaration block.
@@ -26,7 +26,7 @@ public interface CombinedSelector extends Rule<Selector> {
      * Reads the pseudo element of the last simple selector as defined in the CSS specs
      * @return the pseudo-element or null if none is specified
      */
-    public PseudoDeclaration getPseudoElement();
+    public PseudoElement getPseudoElement();
     
     /**
      * Computes specificity according to the CSS rules

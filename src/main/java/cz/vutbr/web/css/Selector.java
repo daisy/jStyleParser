@@ -56,54 +56,6 @@ public interface Selector extends Rule<Selector.SelectorPart> {
     	
     	public String value() {return value;}
     }
-
-    /**
-     * A pseudo class or element specification 
-     * @author burgetr
-     */
-    public enum PseudoDeclaration
-    {
-        ACTIVE("active", false),
-        FOCUS("focus", false),
-        HOVER("hover", false),
-        LINK("link", false),
-        VISITED("visited", false),
-        FIRST_CHILD("first-child", false),
-        LAST_CHILD("last-child", false),
-        ONLY_CHILD("only-child", false),
-        ONLY_OF_TYPE("only-of-type", false),
-        NTH_CHILD("nth-child", false),
-        NTH_LAST_CHILD("nth-last-child", false),
-        NTH_OF_TYPE("nth-of-type", false),
-        NTH_LAST_OF_TYPE("nth-last-of-type", false),
-        FIRST_OF_TYPE("first-of-type", false),
-        LAST_OF_TYPE("last-of-type", false),
-        ROOT("root", false),
-        EMPTY("empty", false),
-        LANG("lang", false),
-        ENABLED("enabled", false),
-        DISABLED("disabled", false),
-        CHECKED("checked", false),
-        TARGET("target", false),
-        
-        FIRST_LINE("first-line", true),
-        FIRST_LETTER("first-letter", true),
-        BEFORE("before", true),
-        AFTER("after", true);
-        
-        private String value;
-        private boolean element;
-        
-        private PseudoDeclaration(String value, boolean isElement) {
-            this.value = value;
-            this.element = isElement;
-        }
-        
-        public String value() {return value;}
-        
-        public boolean isPseudoElement() {return element;}
-        
-    }
     
     /**
      * Returns combinator of this and other simple selector
@@ -140,7 +92,7 @@ public interface Selector extends Rule<Selector.SelectorPart> {
      * Reads the pseudoelement of the selector 
      * @return the used pseudo-element or <code>null</code> if no pseudo-element is specified
      */
-    public PseudoDeclaration getPseudoElement();
+    public PseudoElement getPseudoElement();
     
     /**
      * Modifies specificity according to CSS standard
@@ -272,21 +224,28 @@ public interface Selector extends Rule<Selector.SelectorPart> {
     	public ElementDOM setElement(Element e);
     }
     
+    public interface PseudoPage extends SelectorPart {}
+    
     /**
-     * Pseudo page
-     * @author kapy
+     * Pseudo class
+     * @author bertfrees
      *
      */
-    public interface PseudoPage extends SelectorPart {
-    	public String getFunctionName();
-    	public PseudoPage setFunctionName(String functionName);
-    	
-    	public String getValue();
-    	public PseudoPage setValue(String value);
-    	
-        public PseudoDeclaration getDeclaration();
+    public interface PseudoClass extends PseudoPage {}
+    
+    /**
+     * Pseudo element
+     * @author bertfrees
+     *
+     */
+    public interface PseudoElement extends PseudoPage {
+        
+        public static final String FIRST_LINE = "first-line";
+        public static final String FIRST_LETTER = "first-letter";
+        public static final String BEFORE = "before";
+        public static final String AFTER = "after";
+        
+        public String getName();
         
     }
-       
-   
 }

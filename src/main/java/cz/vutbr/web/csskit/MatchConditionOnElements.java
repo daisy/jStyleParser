@@ -13,8 +13,7 @@ import java.util.Set;
 import org.w3c.dom.Element;
 
 import cz.vutbr.web.css.MatchCondition;
-import cz.vutbr.web.css.Selector.PseudoDeclaration;
-import cz.vutbr.web.css.Selector.PseudoPage;
+import cz.vutbr.web.css.Selector.PseudoClass;
 import cz.vutbr.web.css.Selector.SelectorPart;
 
 /**
@@ -27,8 +26,8 @@ import cz.vutbr.web.css.Selector.SelectorPart;
  */
 public class MatchConditionOnElements implements MatchCondition
 {
-    private Map<Element, Set<PseudoDeclaration>> elements;
-    private Map<String, Set<PseudoDeclaration>> names;
+    private Map<Element, Set<PseudoClass>> elements;
+    private Map<String, Set<PseudoClass>> names;
     
     /**
      * Creates the condition with an empty set of assigned elements and element names.
@@ -44,7 +43,7 @@ public class MatchConditionOnElements implements MatchCondition
      * @param e the element
      * @param pseudoClass the pseudo class to be assigned
      */
-    public MatchConditionOnElements(Element e, PseudoDeclaration pseudoClass)
+    public MatchConditionOnElements(Element e, PseudoClass pseudoClass)
     {
         addMatch(e, pseudoClass);
     }
@@ -54,7 +53,7 @@ public class MatchConditionOnElements implements MatchCondition
      * @param name the element name
      * @param pseudoClass the pseudo class to be assigned
      */
-    public MatchConditionOnElements(String name, PseudoDeclaration pseudoClass)
+    public MatchConditionOnElements(String name, PseudoClass pseudoClass)
     {
         addMatch(name, pseudoClass);
     }
@@ -64,15 +63,15 @@ public class MatchConditionOnElements implements MatchCondition
      * @param e the DOM element
      * @param pseudoClass the pseudo class to be assigned
      */
-    public void addMatch(Element e, PseudoDeclaration pseudoClass)
+    public void addMatch(Element e, PseudoClass pseudoClass)
     {
         if (elements == null)
-            elements = new HashMap<Element, Set<PseudoDeclaration>>();
+            elements = new HashMap<Element, Set<PseudoClass>>();
         
-        Set<PseudoDeclaration> classes = elements.get(e);
+        Set<PseudoClass> classes = elements.get(e);
         if (classes == null)
         {
-            classes = new HashSet<PseudoDeclaration>(2);
+            classes = new HashSet<PseudoClass>(2);
             elements.put(e, classes);
         }
         classes.add(pseudoClass);
@@ -83,11 +82,11 @@ public class MatchConditionOnElements implements MatchCondition
      * @param e the DOM element
      * @param pseudoClass the pseudo class to be removed
      */
-    public void removeMatch(Element e, PseudoDeclaration pseudoClass)
+    public void removeMatch(Element e, PseudoClass pseudoClass)
     {
         if (elements != null)
         {
-            Set<PseudoDeclaration> classes = elements.get(e);
+            Set<PseudoClass> classes = elements.get(e);
             if (classes != null)
                 classes.remove(pseudoClass);
         }   
@@ -99,15 +98,15 @@ public class MatchConditionOnElements implements MatchCondition
      * @param name the element name
      * @param pseudoClass the pseudo class to be assigned
      */
-    public void addMatch(String name, PseudoDeclaration pseudoClass)
+    public void addMatch(String name, PseudoClass pseudoClass)
     {
         if (names == null)
-            names = new HashMap<String, Set<PseudoDeclaration>>();
+            names = new HashMap<String, Set<PseudoClass>>();
         
-        Set<PseudoDeclaration> classes = names.get(name);
+        Set<PseudoClass> classes = names.get(name);
         if (classes == null)
         {
-            classes = new HashSet<PseudoDeclaration>(2);
+            classes = new HashSet<PseudoClass>(2);
             names.put(name, classes);
         }
         classes.add(pseudoClass);
@@ -118,11 +117,11 @@ public class MatchConditionOnElements implements MatchCondition
      * @param name the element name
      * @param pseudoClass the pseudo class to be removed
      */
-    public void removeMatch(String name, PseudoDeclaration pseudoClass)
+    public void removeMatch(String name, PseudoClass pseudoClass)
     {
         if (names != null)
         {
-            Set<PseudoDeclaration> classes = names.get(name);
+            Set<PseudoClass> classes = names.get(name);
             if (classes != null)
                 classes.remove(pseudoClass);
         }   
@@ -130,20 +129,20 @@ public class MatchConditionOnElements implements MatchCondition
     
     public boolean isSatisfied(Element e, SelectorPart selpart)
     {
-        if (selpart instanceof PseudoPage)
+        if (selpart instanceof PseudoClass)
         {
-            PseudoDeclaration required = ((PseudoPage) selpart).getDeclaration();
+            PseudoClass required = ((PseudoClass) selpart);
             
             if (elements != null)
             {
-                Set<PseudoDeclaration> pseudos = elements.get(e);
+                Set<PseudoClass> pseudos = elements.get(e);
                 if (pseudos != null)
                     return pseudos.contains(required);
             }
             
             if (names != null)
             {
-                Set<PseudoDeclaration> pseudos = names.get(e.getTagName().toLowerCase());
+                Set<PseudoClass> pseudos = names.get(e.getTagName().toLowerCase());
                 if (pseudos != null)
                     return pseudos.contains(required);
             }

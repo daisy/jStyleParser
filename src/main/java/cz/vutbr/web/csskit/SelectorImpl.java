@@ -1,6 +1,9 @@
 package cz.vutbr.web.csskit;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -80,22 +83,15 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
     	}
     	return elementName;
     }
-    
-    public PseudoDeclaration getPseudoElement() {
-        PseudoDeclaration ret = null;
-        for(SelectorPart item : list) {
-            if(item instanceof PseudoPage)
-            {
-                ret = ((PseudoPage)item).getDeclaration();
-                if (ret.isPseudoElement())
-                    break; //pseudo-elements may only be appended after the last simple selector of the selector
-                else
-                    ret = null; //not interested in pseudo-classes
-            }
-        }
-        return ret;
-    }
-    
+	
+	public PseudoElement getPseudoElement() {
+		// FIXME
+		for (SelectorPart item : list)
+			if (item instanceof PseudoElement)
+				return (PseudoElement)item; // pseudo-elements may only be appended after the last simple selector of the selector
+		return null;
+	}
+	
     public boolean matches(Element e) {
     	
 		// check other items of simple selector
@@ -361,97 +357,121 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
 				return false;
 			return true;
 		}    	
-    }
-    
-    /**
-     * Wrap of CSS pseudo class or pseudo class with function
-     * @author kapy
-     *
-     */
-    public static class PseudoPageImpl implements PseudoPage {
-    	
-        private static HashMap<String, PseudoDeclaration> PSEUDO_DECLARATIONS;
-        static {
-            PSEUDO_DECLARATIONS = new HashMap<String, PseudoDeclaration>(22);
-            PSEUDO_DECLARATIONS.put("active", PseudoDeclaration.ACTIVE);
-            PSEUDO_DECLARATIONS.put("focus", PseudoDeclaration.FOCUS);
-            PSEUDO_DECLARATIONS.put("hover", PseudoDeclaration.HOVER);
-            PSEUDO_DECLARATIONS.put("link", PseudoDeclaration.LINK);
-            PSEUDO_DECLARATIONS.put("visited", PseudoDeclaration.VISITED);
-            PSEUDO_DECLARATIONS.put("first-child", PseudoDeclaration.FIRST_CHILD);
-            PSEUDO_DECLARATIONS.put("last-child", PseudoDeclaration.LAST_CHILD);
-            PSEUDO_DECLARATIONS.put("only-child", PseudoDeclaration.ONLY_CHILD);
-            PSEUDO_DECLARATIONS.put("only-of-type", PseudoDeclaration.ONLY_OF_TYPE);
-            PSEUDO_DECLARATIONS.put("nth-child", PseudoDeclaration.NTH_CHILD);
-            PSEUDO_DECLARATIONS.put("nth-last-child", PseudoDeclaration.NTH_LAST_CHILD);
-            PSEUDO_DECLARATIONS.put("nth-of-type", PseudoDeclaration.NTH_OF_TYPE);
-            PSEUDO_DECLARATIONS.put("nth-last-of-type", PseudoDeclaration.NTH_LAST_OF_TYPE);
-            PSEUDO_DECLARATIONS.put("first-of-type", PseudoDeclaration.FIRST_OF_TYPE);
-            PSEUDO_DECLARATIONS.put("last-of-type", PseudoDeclaration.LAST_OF_TYPE);
-            PSEUDO_DECLARATIONS.put("root", PseudoDeclaration.ROOT);
-            PSEUDO_DECLARATIONS.put("empty", PseudoDeclaration.EMPTY);
-            PSEUDO_DECLARATIONS.put("lang", PseudoDeclaration.LANG);
-            PSEUDO_DECLARATIONS.put("enabled", PseudoDeclaration.ENABLED);
-            PSEUDO_DECLARATIONS.put("disabled", PseudoDeclaration.DISABLED);
-            PSEUDO_DECLARATIONS.put("checked", PseudoDeclaration.CHECKED);
-            PSEUDO_DECLARATIONS.put("target", PseudoDeclaration.TARGET);
-            
-            PSEUDO_DECLARATIONS.put("first-letter", PseudoDeclaration.FIRST_LETTER);
-            PSEUDO_DECLARATIONS.put("first-line", PseudoDeclaration.FIRST_LINE);
-            PSEUDO_DECLARATIONS.put("before", PseudoDeclaration.BEFORE);
-            PSEUDO_DECLARATIONS.put("after", PseudoDeclaration.AFTER);
-        }
-        
-    	private String functionName;
-    	private String value;
-    	private PseudoDeclaration declaration;
-    	//decoded element index for nth-XXXX properties -- values a and b in the an+b specification
-    	private int[] elementIndex;
-    	
-    	protected PseudoPageImpl(String value, String functionName) {
-    		setValue(value);
-    		setFunctionName(functionName);
-    	}
-
-    	
-    	public PseudoDeclaration getDeclaration()
-    	{
-    	    return declaration;
-    	}
-    	
-		/**
-		 * @return the functionName
-		 */
-		public String getFunctionName() {
-			return functionName;
+	}
+	
+	/**
+	 * Pseudo class
+	 * @author bertfrees
+	 *
+	 */
+	public static class PseudoClassImpl implements PseudoClass {
+		
+		private static enum PseudoClassDef {
+			ACTIVE("active"),
+			FOCUS("focus"),
+			HOVER("hover"),
+			LINK("link"),
+			VISITED("visited"),
+			FIRST_CHILD("first-child"),
+			LAST_CHILD("last-child"),
+			ONLY_CHILD("only-child"),
+			ONLY_OF_TYPE("only-of-type"),
+			NTH_CHILD("nth-child", 1),
+			NTH_LAST_CHILD("nth-last-child", 1),
+			NTH_OF_TYPE("nth-of-type", 1),
+			NTH_LAST_OF_TYPE("nth-last-of-type", 1),
+			FIRST_OF_TYPE("first-of-type"),
+			LAST_OF_TYPE("last-of-type"),
+			ROOT("root"),
+			EMPTY("empty"),
+			LANG("lang", 1),
+			ENABLED("enabled"),
+			DISABLED("disabled"),
+			CHECKED("checked"),
+			TARGET("target");
+			
+			private final String name;
+			private final boolean isFunction;
+			private final int minArgs;
+			private final int maxArgs;
+			
+			private PseudoClassDef(String name) {
+				this.name = name;
+				this.isFunction = false;
+				this.minArgs = 0;
+				this.maxArgs = 0;
+			}
+			
+			private PseudoClassDef(String name, int args) {
+				this(name, args, args);
+			}
+			
+			private PseudoClassDef(String name, int minArgs, int maxArgs) {
+				this.name = name;
+				this.isFunction = true;
+				this.minArgs = minArgs;
+				this.maxArgs = maxArgs;
+			}
 		}
-
-		/**
-		 * @param functionName the functionName to set
-		 */
-		public PseudoPage setFunctionName(String functionName) {			
-			this.functionName = functionName;
-            inferDeclaration();
-            decodeValue();
-			return this;
+		
+		private static final HashMap<String,PseudoClassDef> PSEUDO_CLASS_DEFS;
+		static {
+			PSEUDO_CLASS_DEFS = new HashMap<String,PseudoClassDef>();
+			for (PseudoClassDef d : PseudoClassDef.values())
+				PSEUDO_CLASS_DEFS.put(d.name, d);
+		}
+	
+		private final PseudoClassDef def;
+		private final List<String> args;
+		
+		//decoded element index for nth-XXXX properties -- values a and b in the an+b specification
+		private int[] elementIndex;
+		
+		protected PseudoClassImpl(String name) {
+			this(name, false);
+		}
+		
+		protected PseudoClassImpl(String name, boolean isFunction, String... args) {
+			name = name.toLowerCase(); // Pseudo-element and pseudo-class names are case-insensitive
+			if (PSEUDO_CLASS_DEFS.containsKey(name))
+				def = PSEUDO_CLASS_DEFS.get(name);
+			else
+				throw new IllegalArgumentException(name + " is not a valid pseudo-class name");
+			if (isFunction && !def.isFunction)
+				throw new IllegalArgumentException(name + " must not be a function");
+			if (!isFunction && def.isFunction)
+				throw new IllegalArgumentException(name + " must be a function");
+			if (def.isFunction) {
+				if (args.length < def.minArgs || args.length > def.maxArgs)
+					throw new IllegalArgumentException(name + " requires " + def.minArgs
+					                                   + (def.maxArgs > def.minArgs ? ".." + def.maxArgs : "") + " "
+					                                   + (def.minArgs == 1 && def.maxArgs == 1 ? "argument" : "arguments"));
+				this.args = new ArrayList<String>();
+				for (String a : args)
+					this.args.add(a);
+			} else
+				this.args = null;
+			
+			//decode the element index for nth-X properties
+			elementIndex = null;
+			if (def == PseudoClassDef.NTH_CHILD
+				|| def == PseudoClassDef.NTH_LAST_CHILD
+				|| def == PseudoClassDef.NTH_OF_TYPE
+				|| def == PseudoClassDef.NTH_LAST_OF_TYPE) {
+				try {
+					elementIndex = decodeIndex(args[0]);
+				} catch (NumberFormatException e) {
+				}
+			}
 		}
 		
 		public void computeSpecificity(Specificity spec) {
-
-		    if (declaration != null)
-		    {
-    			if(declaration.isPseudoElement())
-    				spec.add(Level.D);
-    			else
-    				spec.add(Level.C);
-		    }
-
-		}		
+			spec.add(Level.C);
+		}
 		
 		public boolean matches(Element e, MatchCondition cond) {
 			
-			if(declaration != null) { //null declaration means some unknown or unimplemented pseudo
-				switch (declaration) {
+				switch (def) {
 					case FIRST_CHILD:
 					case LAST_CHILD:
 					case ONLY_CHILD:
@@ -459,7 +479,7 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
 					    {
     						boolean first = false;
     						boolean last = false;
-    						if (declaration != PseudoDeclaration.LAST_CHILD) {
+    						if (def != PseudoClassDef.LAST_CHILD) {
     							Node prev = e;
     							do {
     								prev = prev.getPreviousSibling();
@@ -469,7 +489,7 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
     								}
     							} while(prev.getNodeType() != Node.ELEMENT_NODE);
     						}
-    						if (declaration != PseudoDeclaration.FIRST_CHILD) {
+    						if (def != PseudoClassDef.FIRST_CHILD) {
     							Node next = e;
     							do {
     								next = next.getNextSibling();
@@ -479,7 +499,7 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
     								}
     							} while(next.getNodeType() != Node.ELEMENT_NODE);
     						}
-    						switch (declaration) {
+    						switch (def) {
     							case FIRST_CHILD: return first;
     							case LAST_CHILD: return last;
     							default: return first && last; //ONLY_CHILD
@@ -494,7 +514,7 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
                         {
                             boolean firstt = false;
                             boolean lastt = false;
-                            if (declaration != PseudoDeclaration.LAST_OF_TYPE) {
+                            if (def != PseudoClassDef.LAST_OF_TYPE) {
                                 Node prev = e;
                                 firstt = true;
                                 do {
@@ -504,7 +524,7 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
                                         firstt = false;
                                 } while (prev != null && firstt);
                             }
-                            if (declaration != PseudoDeclaration.FIRST_OF_TYPE) {
+                            if (def != PseudoClassDef.FIRST_OF_TYPE) {
                                 Node next = e;
                                 lastt = true;
                                 do {
@@ -514,7 +534,7 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
                                         lastt = false;
                                 } while(next != null && lastt);
                             }
-                            switch (declaration) {
+                            switch (def) {
                                 case FIRST_OF_TYPE: return firstt;
                                 case LAST_OF_TYPE: return lastt;
                                 default: return firstt && lastt; //ONLY_OF_TYPE
@@ -543,13 +563,13 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
                         }
                         return true;
 					default:
-					    //match all pseudo elements and the pseudo classes specified by an additional condition (usually used for using LINK pseudo class for links)
-						if (declaration.isPseudoElement() || cond.isSatisfied(e, this)) 
+					    //match all pseudo classes specified by an additional condition (usually used for using LINK pseudo class for links)
+						if (cond.isSatisfied(e, this)) 
 						{
 							return true;
 						}
 				}
-			}
+			
 			return false;
 		}
 		
@@ -583,7 +603,7 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
 		 * @return an array of two integers <code>a</code> and <code>b</code>
 		 * @throws NumberFormatException
 		 */
-		protected int[] decodeIndex(String index) throws NumberFormatException
+		protected static int[] decodeIndex(String index) throws NumberFormatException
 		{
 		    String s = index.toLowerCase().trim();
 		    if (s.equals("odd")){
@@ -683,38 +703,17 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
 		    return e1.getNodeName().equalsIgnoreCase(e2.getNodeName());
 		}
 		
-		/**
-		 * Sets value of pseudo. Could be even <code>null</code>
-		 * @param value New value
-		 */
-		public PseudoPage setValue(String value) {
-			this.value = value;
-			inferDeclaration();
-			decodeValue();
-			return this;
-		}
-		
-
-		public String getValue() {
-			return value;
-		}
-				
 		@Override
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
-			 
-			sb.append(OutputUtil.PAGE_OPENING);
-			if (declaration!=null && declaration.isPseudoElement())
-	            sb.append(OutputUtil.PAGE_OPENING);
-			
-			if(functionName!=null) 
-				sb.append(functionName).append(OutputUtil.FUNCTION_OPENING);
-			if(value!=null)		sb.append(value);
-			if(functionName!=null)
+			sb.append(OutputUtil.PAGE_OPENING).append(def.name);
+			if (def.isFunction) {
+				sb.append(OutputUtil.FUNCTION_OPENING);
+				if (args != null)
+					OutputUtil.appendList(sb, args, ", ");
 				sb.append(OutputUtil.FUNCTION_CLOSING);
-			
+			}
 			sb.append(OutputUtil.PAGE_CLOSING);
-			
 			return sb.toString();
 		}
 
@@ -725,9 +724,8 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result
-					+ ((functionName == null) ? 0 : functionName.hashCode());
-			result = prime * result + ((value == null) ? 0 : value.hashCode());
+			result = prime * result + def.hashCode();
+			result = prime * result + (!def.isFunction ? 0 : args.hashCode());
 			return result;
 		}
 
@@ -740,48 +738,86 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
 				return true;
 			if (obj == null)
 				return false;
-			if (!(obj instanceof PseudoPageImpl))
+			if (!(obj instanceof PseudoClassImpl))
 				return false;
-			PseudoPageImpl other = (PseudoPageImpl) obj;
-			if (functionName == null) {
-				if (other.functionName != null)
-					return false;
-			} else if (!functionName.equals(other.functionName))
+			PseudoClassImpl other = (PseudoClassImpl) obj;
+			if (def != other.def)
 				return false;
-			if (value == null) {
-				if (other.value != null)
-					return false;
-			} else if (!value.equals(other.value))
+			if (def.isFunction && !args.equals(other.args))
 				return false;
 			return true;
 		}
+	}
+	
+	/**
+	 * Pseudo element
+	 * @author bertfrees
+	 */
+	public static class PseudoElementImpl implements PseudoElement {
 		
-		private void inferDeclaration()
-		{
-		    if (functionName != null)
-		        declaration = PSEUDO_DECLARATIONS.get(functionName.toLowerCase()); //Pseudo-element and pseudo-class names are case-insensitive
-		    else if (value != null)
-		        declaration = PSEUDO_DECLARATIONS.get(value.toLowerCase());
-		    else
-		        declaration = null;
+		final static HashSet<String> PSEUDO_CLASS_DEFS = new HashSet<String>();
+		static {
+			PSEUDO_CLASS_DEFS.add(PseudoElement.FIRST_LINE);
+			PSEUDO_CLASS_DEFS.add(PseudoElement.FIRST_LETTER);
+			PSEUDO_CLASS_DEFS.add(PseudoElement.BEFORE);
+			PSEUDO_CLASS_DEFS.add(PseudoElement.AFTER);
 		}
-
-        private void decodeValue()
-        {
-            //decode the element index for nth-X properties
-            elementIndex = null;
-            if (declaration == PseudoDeclaration.NTH_CHILD || declaration == PseudoDeclaration.NTH_LAST_CHILD
-                    || declaration == PseudoDeclaration.NTH_OF_TYPE || declaration == PseudoDeclaration.NTH_LAST_OF_TYPE)
-            {
-                try {
-                    elementIndex = decodeIndex(value);
-                } catch (NumberFormatException e) {
-                }
-            }
-        }
-
-    }
-    
+		
+		private final String name;
+		
+		protected PseudoElementImpl(String name) {
+			if (PSEUDO_CLASS_DEFS.contains(name))
+				this.name = name;
+			else
+			throw new IllegalArgumentException(name + " is not a valid pseudo-class name");
+		}
+		
+		public String getName() {
+			return name;
+		}
+		
+		public void computeSpecificity(Specificity spec) {
+			spec.add(Level.D);
+		}
+		
+		public boolean matches(Element e, MatchCondition cond) {
+			return true;
+		}
+		
+		@Override
+		public String toString() {
+			StringBuilder sb = new StringBuilder();
+			sb
+				.append(OutputUtil.PAGE_OPENING)
+				.append(OutputUtil.PAGE_OPENING)
+				.append(name)
+				.append(OutputUtil.PAGE_CLOSING);
+			return sb.toString();
+		}
+		
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + name.hashCode();
+			return result;
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (!(obj instanceof PseudoElementImpl))
+				return false;
+			PseudoElementImpl other = (PseudoElementImpl) obj;
+			if (!name.equals(other.name))
+				return false;
+			return true;
+		}
+	}
+	
     /**
      * Element ID
      * @author kapy

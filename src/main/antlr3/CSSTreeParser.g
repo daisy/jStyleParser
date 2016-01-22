@@ -829,37 +829,42 @@ pseudo returns [cz.vutbr.web.css.Selector.PseudoPage pseudoPage]
   /* pseudo classes */
 	: ^(PSEUDOCLASS i=IDENT)
 		{
-			$pseudoPage = rf.createPseudoPage(extractText(i), null);
+			try {
+				$pseudoPage = rf.createPseudoClass(extractText(i));
+			} catch (Exception e1) {
+				// maybe a single colon was used for a pseudo element
+				try {
+					$pseudoPage = rf.createPseudoElement(extractText(i)); }
+				catch (Exception e2) {
+					log.error("invalid pseudo declaration: " + extractText(i));
+                    $pseudoPage = null;
+				}
+			}
 		}
 	| ^(PSEUDOCLASS f=FUNCTION i=IDENT)
 		{
-			$pseudoPage = rf.createPseudoPage(extractText(i), extractText(f));
+			$pseudoPage = rf.createPseudoClassFunction(extractText(f), extractText(i));
 		}
 	| ^(PSEUDOCLASS f=FUNCTION m=MINUS? n=NUMBER)
 		{
       String exp = extractText(n);
       if (m != null) exp = "-" + exp;
-			$pseudoPage = rf.createPseudoPage(exp, extractText(f));
+			$pseudoPage = rf.createPseudoClassFunction(extractText(f), exp);
 		}
   | ^(PSEUDOCLASS f=FUNCTION m=MINUS? n=INDEX)
     {
       String exp = extractText(n);
       if (m != null) exp = "-" + exp;
-      $pseudoPage = rf.createPseudoPage(exp, extractText(f));
+      $pseudoPage = rf.createPseudoClassFunction(extractText(f), exp);
     }
   /* pseudo elements */
   | ^(PSEUDOELEM i=IDENT)
     {
-      $pseudoPage = rf.createPseudoPage(extractText(i), null);
-      if ($pseudoPage == null || $pseudoPage.getDeclaration() == null)
-      {
+      try {
+          $pseudoPage = rf.createPseudoElement(extractText(i));
+      } catch (Exception e) {
           log.error("invalid pseudo declaration: " + extractText(i));
           $pseudoPage = null;
-      }
-      else if (!$pseudoPage.getDeclaration().isPseudoElement())
-      {
-          log.error("pseudo class cannot be used as pseudo element");
-          $pseudoPage = null; /* pseudoClasses are not allowed here */
       }
     }
   | ^(PSEUDOELEM f=FUNCTION i=IDENT)

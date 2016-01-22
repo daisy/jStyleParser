@@ -27,7 +27,7 @@ import cz.vutbr.web.css.Rule;
 import cz.vutbr.web.css.RuleMedia;
 import cz.vutbr.web.css.RuleSet;
 import cz.vutbr.web.css.Selector;
-import cz.vutbr.web.css.Selector.PseudoDeclaration;
+import cz.vutbr.web.css.Selector.PseudoElement;
 import cz.vutbr.web.css.StyleSheet;
 import cz.vutbr.web.csskit.ElementUtil;
 
@@ -136,7 +136,7 @@ public class Analyzer {
 				result.put((Element) current, null, main.concretize());
 				
 				//repeat for the pseudo classes (if any)
-				for (PseudoDeclaration pseudo : ((DeclarationMap) source).pseudoSet((Element) current))
+				for (PseudoElement pseudo : ((DeclarationMap) source).pseudoSet((Element) current))
 				{
 				    NodeData pdata = CSSFactory.createNodeData();
 	                declarations = ((DeclarationMap) source).get((Element) current, pseudo);
@@ -272,7 +272,7 @@ public class Analyzer {
 		List<Declaration> eldecl = new ArrayList<Declaration>();
 		
 		// existing pseudo selectors found
-		Set<PseudoDeclaration> pseudos = new HashSet<PseudoDeclaration>();
+		Set<PseudoElement> pseudos = new HashSet<PseudoElement>();
 
 		// for all candidates
 		for (OrderedRule orule : clist) {
@@ -293,7 +293,7 @@ public class Analyzer {
 
 				log.trace("CombinedSelector \"{}\" matched", s);
 				
-				PseudoDeclaration pseudo = s.getPseudoElement();
+				PseudoElement pseudo = s.getPseudoElement();
                 CombinedSelector.Specificity spec = s.computeSpecificity();
 				if (pseudo == null)
 				{
@@ -317,7 +317,7 @@ public class Analyzer {
 		Collections.sort(eldecl); //sort the main list
 		log.debug("Sorted {} declarations.", eldecl.size());
 		log.trace("With values: {}", eldecl);
-		for (PseudoDeclaration p : pseudos)
+		for (PseudoElement p : pseudos)
 		    declarations.sortDeclarations(e, p); //sort pseudos
 		
 		// set the main list

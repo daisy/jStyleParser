@@ -19,8 +19,8 @@ import org.xml.sax.SAXException;
 
 import cz.vutbr.web.css.CSSFactory;
 import cz.vutbr.web.css.NodeData;
+import cz.vutbr.web.css.RuleFactory;
 import cz.vutbr.web.css.StyleSheet;
-import cz.vutbr.web.css.Selector.PseudoDeclaration;
 import cz.vutbr.web.css.TermColor;
 import cz.vutbr.web.css.TermFactory;
 import cz.vutbr.web.csskit.MatchConditionOnElements;
@@ -31,6 +31,7 @@ public class PseudoClassTest {
 	private static final Logger log = LoggerFactory.getLogger(PseudoClassTest.class);
 	
 	private static TermFactory tf = CSSFactory.getTermFactory();
+	private static RuleFactory rf = CSSFactory.getRuleFactory();
 	
 	@BeforeClass
 	public static void init() throws SAXException, IOException {
@@ -44,11 +45,11 @@ public class PseudoClassTest {
         Document doc = ds.parse();
         ElementMap elements = new ElementMap(doc);
         
-        MatchConditionOnElements cond = new MatchConditionOnElements("a", PseudoDeclaration.LINK);
-        cond.addMatch(elements.getElementById("l2"), PseudoDeclaration.HOVER);
-        cond.addMatch(elements.getElementById("l3"), PseudoDeclaration.VISITED);
-        cond.addMatch(elements.getElementById("l3"), PseudoDeclaration.HOVER);
-        cond.removeMatch(elements.getElementById("l3"), PseudoDeclaration.HOVER);
+        MatchConditionOnElements cond = new MatchConditionOnElements("a", rf.createPseudoClass("LINK"));
+        cond.addMatch(elements.getElementById("l2"), rf.createPseudoClass("HOVER"));
+        cond.addMatch(elements.getElementById("l3"), rf.createPseudoClass("VISITED"));
+        cond.addMatch(elements.getElementById("l3"), rf.createPseudoClass("HOVER"));
+        cond.removeMatch(elements.getElementById("l3"), rf.createPseudoClass("HOVER"));
         CSSFactory.registerDefaultMatchCondition(cond);
         
         StyleMap decl = CSSFactory.assignDOM(doc, null, createBaseFromFilename("data/simple/pseudo.html"),"screen", true);
@@ -69,9 +70,9 @@ public class PseudoClassTest {
         Document doc = ds.parse();
         ElementMap elements = new ElementMap(doc);
         
-        MatchConditionOnElements cond = new MatchConditionOnElements("a", PseudoDeclaration.LINK);
-        cond.addMatch(elements.getElementById("l2"), PseudoDeclaration.HOVER);
-        cond.addMatch(elements.getElementById("l3"), PseudoDeclaration.VISITED);
+        MatchConditionOnElements cond = new MatchConditionOnElements("a", rf.createPseudoClass("LINK"));
+        cond.addMatch(elements.getElementById("l2"), rf.createPseudoClass("HOVER"));
+        cond.addMatch(elements.getElementById("l3"), rf.createPseudoClass("VISITED"));
         CSSFactory.registerDefaultMatchCondition(cond);
         
         StyleSheet style = CSSFactory.getUsedStyles(doc, null, createBaseFromFilename("data/simple/selectors.html"),"screen");
@@ -93,11 +94,11 @@ public class PseudoClassTest {
         Document doc = ds.parse();
         ElementMap elements = new ElementMap(doc);
 
-        MatchConditionOnElements cond = new MatchConditionOnElements("a", PseudoDeclaration.LINK);
-        cond.addMatch(elements.getElementById("l2"), PseudoDeclaration.HOVER);
-        cond.addMatch(elements.getElementById("l3"), PseudoDeclaration.VISITED);
-        cond.addMatch(elements.getElementById("l3"), PseudoDeclaration.HOVER);
-        cond.removeMatch(elements.getElementById("l3"), PseudoDeclaration.HOVER);
+        MatchConditionOnElements cond = new MatchConditionOnElements("a", rf.createPseudoClass("LINK"));
+        cond.addMatch(elements.getElementById("l2"), rf.createPseudoClass("HOVER"));
+        cond.addMatch(elements.getElementById("l3"), rf.createPseudoClass("VISITED"));
+        cond.addMatch(elements.getElementById("l3"), rf.createPseudoClass("HOVER"));
+        cond.removeMatch(elements.getElementById("l3"), rf.createPseudoClass("HOVER"));
 
         StyleMap decl = CSSFactory.assignDOM(doc, null, createBaseFromFilename("data/simple/pseudo.html"),"screen", true, cond);
 
@@ -117,9 +118,9 @@ public class PseudoClassTest {
         Document doc = ds.parse();
         ElementMap elements = new ElementMap(doc);
 
-        MatchConditionOnElements cond = new MatchConditionOnElements("a", PseudoDeclaration.LINK);
-        cond.addMatch(elements.getElementById("l2"), PseudoDeclaration.HOVER);
-        cond.addMatch(elements.getElementById("l3"), PseudoDeclaration.VISITED);
+        MatchConditionOnElements cond = new MatchConditionOnElements("a", rf.createPseudoClass("LINK"));
+        cond.addMatch(elements.getElementById("l2"), rf.createPseudoClass("HOVER"));
+        cond.addMatch(elements.getElementById("l3"), rf.createPseudoClass("VISITED"));
 
         StyleSheet style = CSSFactory.getUsedStyles(doc, null, createBaseFromFilename("data/simple/selectors.html"),"screen");
         DirectAnalyzer da = new DirectAnalyzer(style);

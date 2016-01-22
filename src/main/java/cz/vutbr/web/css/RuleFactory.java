@@ -171,13 +171,27 @@ public interface RuleFactory {
 	Selector.ElementID createID(String id);
 
 	/**
-	 * Creates CSS selector part, pseudo page
-	 * @param pseudo Name of pseudo page
-	 * @param functionName Name of additional function or <code>null</code>
-	 * @return New CSS pseudo page selector page
+	 * Creates CSS selector part, pseudo class
+	 * @param name Name of pseudo class
+	 * @return New CSS pseudo class selector
 	 */
-	Selector.PseudoPage createPseudoPage(String pseudo, String functionName);
-
+	Selector.PseudoClass createPseudoClass(String name);
+	
+	/**
+	 * Creates CSS selector part, pseudo class (function)
+	 * @param name Name of pseudo class
+	 * @param arg Values of additional arguments
+	 * @return New CSS pseudo class selector
+	 */
+	Selector.PseudoClass createPseudoClassFunction(String name, String... args);
+	
+	/**
+	 * Creates CSS selector part, pseudo element
+	 * @param name Name of pseudo element
+	 * @return New CSS pseudo element selector
+	 */
+	Selector.PseudoElement createPseudoElement(String name);
+	
 	/**
 	 * Creates CSS author style sheet
 	 * @return The new style sheet.

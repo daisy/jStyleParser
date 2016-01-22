@@ -25,7 +25,8 @@ import cz.vutbr.web.css.Selector.ElementDOM;
 import cz.vutbr.web.css.Selector.ElementID;
 import cz.vutbr.web.css.Selector.ElementName;
 import cz.vutbr.web.css.Selector.Operator;
-import cz.vutbr.web.css.Selector.PseudoPage;
+import cz.vutbr.web.css.Selector.PseudoClass;
+import cz.vutbr.web.css.Selector.PseudoElement;
 
 /**
  * @author kapy
@@ -161,8 +162,16 @@ public class RuleFactoryImpl implements RuleFactory {
 		return new SelectorImpl.ElementIDImpl(id);
 	}
 	
-	public PseudoPage createPseudoPage(String pseudo, String functionName) {
-		return new SelectorImpl.PseudoPageImpl(pseudo, functionName);
+	public PseudoClass createPseudoClass(String name) {
+		return new SelectorImpl.PseudoClassImpl(name);
+	}
+	
+	public PseudoClass createPseudoClassFunction(String name, String... args) {
+		return new SelectorImpl.PseudoClassImpl(name, true, args);
+	}
+	
+	public PseudoElement createPseudoElement(String name) {
+		return new SelectorImpl.PseudoElementImpl(name);
 	}
 	
 	public StyleSheet createStyleSheet() {

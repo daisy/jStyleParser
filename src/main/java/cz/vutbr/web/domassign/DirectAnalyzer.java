@@ -24,7 +24,7 @@ import cz.vutbr.web.css.MediaSpec;
 import cz.vutbr.web.css.NodeData;
 import cz.vutbr.web.css.RuleSet;
 import cz.vutbr.web.css.Selector;
-import cz.vutbr.web.css.Selector.PseudoDeclaration;
+import cz.vutbr.web.css.Selector.PseudoElement;
 import cz.vutbr.web.css.StyleSheet;
 import cz.vutbr.web.csskit.ElementUtil;
 
@@ -65,7 +65,7 @@ public class DirectAnalyzer extends Analyzer
      * @param media Used media specification.
      * @return The relevant declarations from the registered style sheets.
      */
-    public NodeData getElementStyle(Element el, PseudoDeclaration pseudo, MediaSpec media)
+    public NodeData getElementStyle(Element el, PseudoElement pseudo, MediaSpec media)
     {
         if (rules == null)
             classifyAllSheets(media);
@@ -86,14 +86,14 @@ public class DirectAnalyzer extends Analyzer
      * @param media Used media name (e.g. "screen" or "all")
      * @return The relevant declarations from the registered style sheets.
      */
-    public NodeData getElementStyle(Element el, PseudoDeclaration pseudo, String media)
+    public NodeData getElementStyle(Element el, PseudoElement pseudo, String media)
     {
         return getElementStyle(el, pseudo, new MediaSpec(media));
     }
     
     //==========================================================================================
     
-    protected List<Declaration> getDeclarationsForElement(Element e, PseudoDeclaration pseudo, Holder holder) 
+    protected List<Declaration> getDeclarationsForElement(Element e, PseudoElement pseudo, Holder holder) 
     {
         if(log.isDebugEnabled()) {
             log.debug("Traversal of {} {}.", e.getNodeName(), e.getNodeValue());
@@ -161,7 +161,7 @@ public class DirectAnalyzer extends Analyzer
 
                 log.trace("CombinedSelector \"{}\" matched", s);
                 
-                PseudoDeclaration psel = s.getPseudoElement();
+                PseudoElement psel = s.getPseudoElement();
                 CombinedSelector.Specificity spec = s.computeSpecificity();
                 if (psel == pseudo)
                 {
