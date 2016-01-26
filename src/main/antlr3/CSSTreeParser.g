@@ -869,18 +869,31 @@ pseudo returns [cz.vutbr.web.css.Selector.PseudoPage pseudoPage]
     }
   | ^(PSEUDOELEM f=FUNCTION i=IDENT)
     {
-      log.error("pseudo element cannot be used as a function");
-      $pseudoPage = null; /* not allowed */
+      try {
+          $pseudoPage = rf.createPseudoElementFunction(extractText(f), extractText(i));
+      } catch (Exception e) {
+          log.error("invalid pseudo declaration", e);
+      }
     }
   | ^(PSEUDOELEM f=FUNCTION m=MINUS? n=NUMBER)
     {
-      log.error("pseudo element cannot be used as a function");
-      $pseudoPage = null; /* not allowed */
+      String exp = extractText(n);
+      if (m != null) exp = "-" + exp;
+      try {
+          $pseudoPage = rf.createPseudoElementFunction(extractText(f), exp);
+      } catch (Exception e) {
+          log.error("invalid pseudo declaration", e);
+      }
     }
   | ^(PSEUDOELEM f=FUNCTION m=MINUS? n=INDEX)
     {
-      log.error("pseudo element cannot be used as a function");
-      $pseudoPage = null; /* not allowed */
+      String exp = extractText(n);
+      if (m != null) exp = "-" + exp;
+      try {
+          $pseudoPage = rf.createPseudoElementFunction(extractText(f), exp);
+      } catch (Exception e) {
+          log.error("invalid pseudo declaration", e);
+      }
     }
 	;
 

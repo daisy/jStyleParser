@@ -246,6 +246,7 @@ public interface Selector extends Rule<Selector.SelectorPart> {
         public static final String AFTER = "after";
         
         public String getName();
+        public String[] getArguments();
         
     }
 }

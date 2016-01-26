@@ -193,6 +193,14 @@ public interface RuleFactory {
 	Selector.PseudoElement createPseudoElement(String name);
 	
 	/**
+	 * Creates CSS selector part, pseudo element (function)
+	 * @param name Name of pseudo element
+	 * @param arg Values of additional arguments
+	 * @return New CSS pseudo element selector
+	 */
+	Selector.PseudoElement createPseudoElementFunction(String name, String... args);
+	
+	/**
 	 * Creates CSS author style sheet
 	 * @return The new style sheet.
 	 */

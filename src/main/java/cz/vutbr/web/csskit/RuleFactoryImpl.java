@@ -167,11 +167,15 @@ public class RuleFactoryImpl implements RuleFactory {
 	}
 	
 	public PseudoClass createPseudoClassFunction(String name, String... args) {
-		return new SelectorImpl.PseudoClassImpl(name, true, args);
+		return new SelectorImpl.PseudoClassImpl(name, args);
 	}
 	
 	public PseudoElement createPseudoElement(String name) {
 		return new SelectorImpl.PseudoElementImpl(name);
+	}
+	
+	public PseudoElement createPseudoElementFunction(String name, String... args) {
+		throw new IllegalArgumentException("pseudo element " + name + " cannot be used as a function");
 	}
 	
 	public StyleSheet createStyleSheet() {

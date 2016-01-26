@@ -391,13 +391,11 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
 			TARGET("target");
 			
 			private final String name;
-			private final boolean isFunction;
 			private final int minArgs;
 			private final int maxArgs;
 			
 			private PseudoClassDef(String name) {
 				this.name = name;
-				this.isFunction = false;
 				this.minArgs = 0;
 				this.maxArgs = 0;
 			}
@@ -408,7 +406,6 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
 			
 			private PseudoClassDef(String name, int minArgs, int maxArgs) {
 				this.name = name;
-				this.isFunction = true;
 				this.minArgs = minArgs;
 				this.maxArgs = maxArgs;
 			}
@@ -427,21 +424,17 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
 		//decoded element index for nth-XXXX properties -- values a and b in the an+b specification
 		private int[] elementIndex;
 		
-		protected PseudoClassImpl(String name) {
-			this(name, false);
-		}
-		
-		protected PseudoClassImpl(String name, boolean isFunction, String... args) {
-			name = name.toLowerCase(); // Pseudo-element and pseudo-class names are case-insensitive
+		protected PseudoClassImpl(String name, String... args) {
+			name = name.toLowerCase(); // Pseudo-class names are case-insensitive
 			if (PSEUDO_CLASS_DEFS.containsKey(name))
 				def = PSEUDO_CLASS_DEFS.get(name);
 			else
 				throw new IllegalArgumentException(name + " is not a valid pseudo-class name");
-			if (isFunction && !def.isFunction)
+			if (args.length > 0 && def.maxArgs == 0)
 				throw new IllegalArgumentException(name + " must not be a function");
-			if (!isFunction && def.isFunction)
+			if (args.length == 0 && def.minArgs > 0)
 				throw new IllegalArgumentException(name + " must be a function");
-			if (def.isFunction) {
+			if (def.minArgs > 0) {
 				if (args.length < def.minArgs || args.length > def.maxArgs)
 					throw new IllegalArgumentException(name + " requires " + def.minArgs
 					                                   + (def.maxArgs > def.minArgs ? ".." + def.maxArgs : "") + " "
@@ -707,10 +700,9 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
 		public String toString() {
 			StringBuilder sb = new StringBuilder();
 			sb.append(OutputUtil.PAGE_OPENING).append(def.name);
-			if (def.isFunction) {
+			if (args != null) {
 				sb.append(OutputUtil.FUNCTION_OPENING);
-				if (args != null)
-					OutputUtil.appendList(sb, args, ", ");
+				OutputUtil.appendList(sb, args, ", ");
 				sb.append(OutputUtil.FUNCTION_CLOSING);
 			}
 			sb.append(OutputUtil.PAGE_CLOSING);
@@ -725,7 +717,7 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
 			final int prime = 31;
 			int result = 1;
 			result = prime * result + def.hashCode();
-			result = prime * result + (!def.isFunction ? 0 : args.hashCode());
+			result = prime * result + (args != null ? args.hashCode() : 0);
 			return result;
 		}
 
@@ -743,7 +735,7 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
 			PseudoClassImpl other = (PseudoClassImpl) obj;
 			if (def != other.def)
 				return false;
-			if (def.isFunction && !args.equals(other.args))
+			if (args != null && !args.equals(other.args))
 				return false;
 			return true;
 		}
@@ -769,11 +761,15 @@ public class SelectorImpl extends AbstractRule<Selector.SelectorPart> implements
 			if (PSEUDO_CLASS_DEFS.contains(name))
 				this.name = name;
 			else
-			throw new IllegalArgumentException(name + " is not a valid pseudo-class name");
+			throw new IllegalArgumentException(name + " is not a valid pseudo-element name");
 		}
 		
 		public String getName() {
 			return name;
+		}
+		
+		public String[] getArguments() {
+			return new String[]{};
 		}
 		
 		public void computeSpecificity(Specificity spec) {
