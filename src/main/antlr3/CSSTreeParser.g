@@ -16,7 +16,7 @@ options {
     // block preparator
 	protected cz.vutbr.web.csskit.antlr.Preparator preparator;
 	private List<cz.vutbr.web.css.MediaQuery> wrapMedia;
-	private cz.vutbr.web.css.RuleList rules;
+	protected cz.vutbr.web.css.RuleList rules;
 	private List<List<cz.vutbr.web.css.MediaQuery>> importMedia;
 	private List<String> importPaths;
 	private String defaultNamespace;
