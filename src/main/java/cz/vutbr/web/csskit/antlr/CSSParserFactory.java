@@ -19,8 +19,6 @@ import cz.vutbr.web.css.MediaQuery;
 import cz.vutbr.web.css.NetworkProcessor;
 import cz.vutbr.web.css.RuleBlock;
 import cz.vutbr.web.css.RuleList;
-import cz.vutbr.web.css.RuleMedia;
-import cz.vutbr.web.css.RuleSet;
 import cz.vutbr.web.css.StyleSheet;
 
 /**
