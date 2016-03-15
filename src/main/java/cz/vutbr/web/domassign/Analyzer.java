@@ -291,10 +291,11 @@ public class Analyzer {
 					continue;
 				}
 
-				log.trace("CombinedSelector \"{}\" matched", s);
-				
 				PseudoElement pseudo = s.getPseudoElement();
                 CombinedSelector.Specificity spec = s.computeSpecificity();
+                
+				log.trace("CombinedSelector \"{}\" matched (specificity {})", s, spec);
+				
 				if (pseudo == null)
 				{
     				// add to main list

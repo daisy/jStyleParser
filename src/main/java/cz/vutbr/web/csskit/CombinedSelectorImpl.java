@@ -98,7 +98,15 @@ public class CombinedSelectorImpl extends AbstractRule<Selector> implements Comb
 			case D: spec[3]++;
 			}
 		}
-
+		
+		@Override
+		public String toString() {
+			if (spec[0] > 0)
+				return "(" + spec[0] + "," + spec[1] + "," + spec[2] + "," + spec[3] + ")";
+			else
+				return "(" + spec[1] + "," + spec[2] + "," + spec[3] + ")";
+		}
+		
 		/* (non-Javadoc)
 		 * @see java.lang.Object#hashCode()
 		 */
