@@ -769,7 +769,7 @@ public final class CSSFactory {
 	 */
 	private static final class CSSAssignTraversal extends Traversal<StyleSheet> {
 
-		private static CSSParserFactory pf = getCSSParserFactory();
+		private CSSParserFactory pf = getCSSParserFactory();
 	    private String encoding;
 	    
 		public CSSAssignTraversal(Document doc, String encoding, Object source, int whatToShow) {
@@ -827,12 +827,12 @@ public final class CSSFactory {
 
 		}
 
-		private static boolean isEmbeddedStyleSheet(Element e, MediaSpec media) {
+		private boolean isEmbeddedStyleSheet(Element e, MediaSpec media) {
 			return "style".equalsIgnoreCase(e.getNodeName())
 					&& isAllowedMedia(e, media);
 		}
 
-		private static boolean isLinkedStyleSheet(Element e, MediaSpec media) {
+		private boolean isLinkedStyleSheet(Element e, MediaSpec media) {
 			return e.getNodeName().equalsIgnoreCase("link")
 			        && (ElementUtil.getAttribute(e, "rel").toLowerCase().contains("stylesheet"))
 					&& (ElementUtil.getAttribute(e, "type").isEmpty() || "text/css".equalsIgnoreCase(ElementUtil.getAttribute(e, "type")))
@@ -863,7 +863,7 @@ public final class CSSFactory {
 		 *            Current media specification used for parsing
 		 * @return {@code true} if allowed, {@code false} otherwise
 		 */
-		private static boolean isAllowedMedia(Element e, MediaSpec media) {
+		private boolean isAllowedMedia(Element e, MediaSpec media) {
 		    String attr = ElementUtil.getAttribute(e, "media");
 		    if (attr != null && attr.length() > 0)
 		    {

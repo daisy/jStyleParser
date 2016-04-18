@@ -124,7 +124,7 @@ public class DeclarationTransformer {
 	/**
 	 * Cache of parsing methods
 	 */
-	private Map<String, Method> methods;
+	protected Map<String, Method> methods;
 
 	/**
 	 * Singleton instance
@@ -132,7 +132,7 @@ public class DeclarationTransformer {
 	private static final DeclarationTransformer instance;
 
 	protected static final TermFactory tf = CSSFactory.getTermFactory();
-	private final SupportedCSS css = CSSFactory.getSupportedCSS();
+	protected final SupportedCSS css = CSSFactory.getSupportedCSS();
 
 	static {
 		instance = new DeclarationTransformer();

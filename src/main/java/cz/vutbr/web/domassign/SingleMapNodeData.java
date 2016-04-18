@@ -29,7 +29,7 @@ public class SingleMapNodeData implements NodeData {
 	protected DeclarationTransformer transformer = CSSFactory.getDeclarationTransformer();
 	protected SupportedCSS css = CSSFactory.getSupportedCSS();
 	
-	private Map<String, Quadruple> map;
+	protected Map<String, Quadruple> map;
 	
 	public SingleMapNodeData() {
 		this.map = new HashMap<String, Quadruple>(css.getTotalProperties(), 1.0f);
