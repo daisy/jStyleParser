@@ -267,6 +267,53 @@ public class SingleMapNodeData implements NodeData {
 			return inhProp==null && curProp==null &&
 			inhValue==null && curValue==null;
 		}
+		
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result
+					+ ((curProp == null) ? 0 : curProp.hashCode());
+			result = prime * result
+					+ ((curValue == null) ? 0 : curValue.hashCode());
+			result = prime * result
+					+ ((inhProp == null) ? 0 : inhProp.hashCode());
+			result = prime * result
+					+ ((inhValue == null) ? 0 : inhValue.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			Quadruple other = (Quadruple) obj;
+			if (curProp == null) {
+				if (other.curProp != null)
+					return false;
+			} else if (!curProp.equals(other.curProp))
+				return false;
+			if (curValue == null) {
+				if (other.curValue != null)
+					return false;
+			} else if (!curValue.equals(other.curValue))
+				return false;
+			if (inhProp == null) {
+				if (other.inhProp != null)
+					return false;
+			} else if (!inhProp.equals(other.inhProp))
+				return false;
+			if (inhValue == null) {
+				if (other.inhValue != null)
+					return false;
+			} else if (!inhValue.equals(other.inhValue))
+				return false;
+			return true;
+		}
 	}
 
 }
