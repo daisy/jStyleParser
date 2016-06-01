@@ -137,4 +137,18 @@ public class TermListImpl extends AbstractList<Term<?>> implements TermList {
 		}
 	}
 
+	@Override
+	public Object clone() {
+		TermListImpl clone; {
+			try {
+				clone = (TermListImpl)super.clone();
+			} catch (CloneNotSupportedException e) {
+				throw new InternalError("coding error");
+			}
+		}
+		clone.value = new ArrayList<Term<?>>();
+		for (Term<?> t : value)
+			clone.value.add((Term<?>)t.clone());
+		return clone;
+	}
 }

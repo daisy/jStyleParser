@@ -11,7 +11,7 @@ import java.net.URL;
  * @author kapy
  * @author Jan Svercl, VUT Brno, 2008
  */
-public interface Declaration extends Rule<Term<?>>, PrettyOutput, Comparable<Declaration> {
+public interface Declaration extends Rule<Term<?>>, PrettyOutput, Comparable<Declaration>, Cloneable {
 
     public boolean isImportant();
     
@@ -24,6 +24,8 @@ public interface Declaration extends Rule<Term<?>>, PrettyOutput, Comparable<Dec
     public Source getSource();
     
     public void setSource(Source src);
+    
+    public Object clone();
     
     //==================================================================================================
     

@@ -67,4 +67,6 @@ public interface Term<T> extends Cloneable {
     public Term<T> setOperator(Operator operator);
 
     public Term<T> shallowClone();
+    
+    public Object clone();
 }

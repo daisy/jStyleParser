@@ -22,7 +22,7 @@ import cz.vutbr.web.csskit.OutputUtil;
  * @author kapy
  *
  */
-public class SingleMapNodeData implements NodeData {
+public class SingleMapNodeData implements NodeData, Cloneable {
 
 	private static final int COMMON_DECLARATION_SIZE = 7;
 	
@@ -252,7 +252,22 @@ public class SingleMapNodeData implements NodeData {
         }
     }
 
-	static class Quadruple {
+	@Override
+	public Object clone() {
+		SingleMapNodeData clone; {
+			try {
+				clone = (SingleMapNodeData)super.clone();
+			} catch (CloneNotSupportedException e) {
+				throw new InternalError("coding error");
+			}
+		}
+		clone.map = new HashMap<String,Quadruple>(css.getTotalProperties(), 1.0f);
+		for (String key : map.keySet())
+			clone.map.put(key, (Quadruple)map.get(key).clone());
+		return clone;
+	}
+	
+	static class Quadruple implements Cloneable {
 		CSSProperty inhProp = null;
 		CSSProperty curProp = null;
 		Term<?> inhValue = null;
@@ -313,6 +328,26 @@ public class SingleMapNodeData implements NodeData {
 			} else if (!inhValue.equals(other.inhValue))
 				return false;
 			return true;
+		}
+		
+		@Override
+		public Object clone() {
+			Quadruple clone; {
+				try {
+					 clone = (Quadruple)super.clone();
+				} catch (CloneNotSupportedException e) {
+					throw new InternalError("coding error");
+				}
+			}
+			if (inhValue != null)
+				clone.inhValue = (Term<?>)inhValue.clone();
+			if (curValue != null)
+				clone.curValue = (Term<?>)curValue.clone();
+			if (inhSource != null)
+				clone.inhSource = (Declaration)inhSource.clone();
+			if (curSource != null)
+				clone.curSource = (Declaration)curSource.clone();
+			return clone;
 		}
 	}
 

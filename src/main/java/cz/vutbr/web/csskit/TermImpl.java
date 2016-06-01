@@ -97,4 +97,8 @@ public class TermImpl<T> implements Term<T> {
 		}
 	}
 
+	@Override
+	public Object clone() {
+		return shallowClone();
+	}
 }

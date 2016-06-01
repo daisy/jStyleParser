@@ -1,5 +1,7 @@
 package cz.vutbr.web.csskit;
 
+import java.util.ArrayList;
+
 import cz.vutbr.web.css.Declaration;
 import cz.vutbr.web.css.Term;
 
@@ -161,4 +163,18 @@ public class DeclarationImpl extends AbstractRule<Term<?>> implements Declaratio
 		return true;
 	}
     
+	@Override
+	public Object clone() {
+		DeclarationImpl clone; {
+			try {
+				clone = (DeclarationImpl)super.clone();
+			} catch (CloneNotSupportedException e) {
+				throw new InternalError("coding error");
+			}
+		}
+		clone.list = new ArrayList<Term<?>>();
+		for (Term<?> t : list)
+			clone.list.add((Term<?>)t.clone());
+		return clone;
+	}
 }
