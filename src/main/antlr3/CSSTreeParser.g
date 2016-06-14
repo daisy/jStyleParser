@@ -8,6 +8,10 @@ options {
 @members {
 	private org.slf4j.Logger log;
 
+	private static final String MDC_KEY_URL = "css.url";
+	private static final String MDC_KEY_LINE = "css.line";
+	private static final String MDC_KEY_POSITION = "css.position";
+    
 	protected cz.vutbr.web.css.RuleFactory rf = cz.vutbr.web.css.CSSFactory.getRuleFactory();
 	protected cz.vutbr.web.css.TermFactory tf = cz.vutbr.web.css.CSSFactory.getTermFactory();
 
@@ -61,7 +65,7 @@ options {
   
   @Override
 	public void emitErrorMessage(String msg) {
-	    log.info("ANTLR: {}", msg);
+	    info("ANTLR: {}", msg);
 	}
 		
 	private String extractText(CommonTree token) {
@@ -84,11 +88,99 @@ options {
   }   
 		
     private void logEnter(String entry) {
-        log.trace("Entering '{}'", entry);
+        trace("Entering '{}'", entry);
     }
     	
     private void logLeave(String leaving) {
-	    log.trace("Leaving '{}'", leaving);
+	    trace("Leaving '{}'", leaving);
+    }
+    
+    private CommonTree curToken = null;
+    
+    void error(String format, Object... args) {
+        error(null, format, args);
+    }
+    
+    void error(CommonTree token, String format, Object... args) {
+        if (log.isErrorEnabled()) {
+            if (token != curToken)
+                mdcPutPosition(token);
+            log.error(format, args);
+        }
+    }
+    
+    void warn(String format, Object... args) {
+        warn(null, format, args);
+    }
+    
+    void warn(CommonTree token, String format, Object... args) {
+        if (log.isWarnEnabled()) {
+            if (token != curToken)
+                mdcPutPosition(token);
+            log.warn(format, args);
+        }
+    }
+
+    void info(String format, Object... args) {
+        info(null, format, args);
+    }
+    
+    void info(CommonTree token, String format, Object... args) {
+        if (log.isInfoEnabled()) {
+            if (token != curToken)
+                mdcPutPosition(token);
+            log.info(format, args);
+        }
+    }
+
+    void debug(String format, Object... args) {
+        debug(null, format, args);
+    }
+    
+    void debug(CommonTree token, String format, Object... args) {
+        if (log.isDebugEnabled()) {
+            if (token != curToken)
+                mdcPutPosition(token);
+            log.debug(format, args);
+        }
+    }
+
+    void trace(String format, Object... args) {
+        trace(null, format, args);
+    }
+    
+    void trace(CommonTree token, String format, Object... args) {
+        if (log.isTraceEnabled()) {
+            if (token != curToken)
+                mdcPutPosition(token);
+            log.trace(format, args);
+        }
+    }
+    
+    private void mdcPutPosition(CommonTree token) {
+        if (token != null) {
+            if (token.getToken() instanceof cz.vutbr.web.csskit.antlr.CSSToken) {
+                cz.vutbr.web.csskit.antlr.CSSToken t = (cz.vutbr.web.csskit.antlr.CSSToken)token.getToken();
+                mdcPutPosition(t.getBase(), t.getLine(), t.getCharPositionInLine());
+            } else {
+                mdcRemovePosition();
+            }
+        } else {
+            mdcRemovePosition();
+        }
+        curToken = token;
+    }
+    
+    private void mdcPutPosition(java.net.URL url, int line, int position) {
+        org.slf4j.MDC.put(MDC_KEY_URL, ""+url);
+        org.slf4j.MDC.put(MDC_KEY_LINE, ""+line);
+        org.slf4j.MDC.put(MDC_KEY_POSITION, ""+position);
+    }
+    
+    private void mdcRemovePosition() {
+        org.slf4j.MDC.remove(MDC_KEY_URL);
+        org.slf4j.MDC.remove(MDC_KEY_LINE);
+        org.slf4j.MDC.remove(MDC_KEY_POSITION);
     }
 }
 
@@ -98,7 +190,7 @@ inlinestyle returns [cz.vutbr.web.css.RuleList rules]
 	$rules = this.rules = new cz.vutbr.web.csskit.RuleArrayList();
 } 
 @after {
-	log.debug("\n***\n{}\n***\n", $rules);	   
+	debug("\n***\n{}\n***\n", $rules);	   
 	logLeave("inlinestyle");
 }
 	: 	^(INLINESTYLE decl=declarations) 
@@ -122,7 +214,7 @@ stylesheet returns [cz.vutbr.web.css.RuleList rules]
   $rules = this.rules = new cz.vutbr.web.csskit.RuleArrayList();
 } 
 @after {
-	log.debug("\n***\n{}\n***\n", $rules);
+	debug("\n***\n{}\n***\n", $rules);
 	logLeave("stylesheet");
 }
 	: ^(STYLESHEET 
@@ -148,7 +240,7 @@ scope {
 }   
 @after {
   if ($statement::invalid)
-      log.debug("Statement is invalid");
+      debug("Statement is invalid");
 	logLeave("statement");
 }
 	: rs=ruleset {$stm=rs;} 
@@ -182,12 +274,12 @@ scope {
 	  {
 	    if (!this.preventImports)
 	    {
-		    log.debug("Adding import: {}", iuri);
+		    debug("Adding import: {}", iuri);
 		    importMedia.add(im);
 		    importPaths.add(iuri);
 		  }
 		  else 
-        log.debug("Ignoring import: {}", iuri);
+        debug("Ignoring import: {}", iuri);
 	  }
 	| ^(NAMESPACE
 	      (prf=namespace_prefix)?
@@ -196,13 +288,13 @@ scope {
 	  {
 	    if (prf == null) {
 	      if (defaultNamespace != null)
-	        log.warn("Default namespace already declared");
-	      log.debug("Declaring default namespace: url({})", ns);
+	        warn("Default namespace already declared");
+	      debug("Declaring default namespace: url({})", ns);
 	      defaultNamespace = ns;
 	    } else {
 	      if (namespaces.containsKey(prf))
-	        log.warn("Namespace for prefix {} already declared", prf);
-	      log.debug("Declaring namespace: {} url({})", prf, ns);
+	        warn("Namespace for prefix {} already declared", prf);
+	      debug("Declaring namespace: {} url({})", prf, ns);
 	      namespaces.put(prf, ns);
 	    }
 	  }
@@ -218,7 +310,7 @@ scope {
         if (m!=null) {
           if (margins == null) margins = new ArrayList<cz.vutbr.web.css.RuleMargin>();
           margins.add(m);
-          log.debug("Inserted margin rule #{} into @page", margins.size()+1);
+          debug("Inserted margin rule #{} into @page", margins.size()+1);
         }
       })*)
     )
@@ -237,10 +329,10 @@ scope {
 						   // this cast should be safe, because when inside of @statetement, oridinal ruleset
 						   // is returned
 					       rules.add((cz.vutbr.web.css.RuleSet)rs);
-						   log.debug("Inserted ruleset ({}) into @media", rules.size());
+						   debug("Inserted ruleset ({}) into @media", rules.size());
 					   }
 					}
-			  | INVALID_STATEMENT { log.debug("Skiping invalid statement in media"); }
+			  | INVALID_STATEMENT { debug("Skiping invalid statement in media"); }
 			
 			)*
 	   )	
@@ -253,7 +345,7 @@ scope {
 
 unknown_atrule returns [cz.vutbr.web.css.RuleBlock<?> stmnt]
 @init { $stmnt = null; }
-    : INVALID_ATSTATEMENT { log.debug("Skipping invalid at statement"); }
+    : INVALID_ATSTATEMENT { debug("Skipping invalid at statement"); }
     ;
 
 import_uri returns [String s]
@@ -288,7 +380,7 @@ media returns [List<cz.vutbr.web.css.MediaQuery> queries]
    $queries = new ArrayList<cz.vutbr.web.css.MediaQuery>();
 }
 @after {
-   log.debug("Totally returned {} media queries.", $queries.size());							  
+   debug("Totally returned {} media queries.", $queries.size());							  
    logLeave("media");		   
 }
 	: (q = mediaquery {
@@ -312,7 +404,7 @@ scope {
 @after {
     if ($mediaquery::invalid)
     {
-        log.trace("Skipping invalid rule {}", $query);
+        trace("Skipping invalid rule {}", $query);
         $mediaquery::q.setType("all"); //change the malformed media queries to "not all"
         $mediaquery::q.setNegative(true);
     }
@@ -347,7 +439,7 @@ mediaterm
             }
             else
             {
-                log.trace("Invalid media query: found ident: {} state: {}", m, state);
+                trace("Invalid media query: found ident: {} state: {}", m, state);
                 $mediaquery::invalid = true;
             }
         }
@@ -364,13 +456,13 @@ mediaterm
 		            }
 		            else
 		            {
-		                log.trace("Invalidating media query for invalud expression");
+		                trace("Invalidating media query for invalud expression");
 		                $mediaquery::invalid = true;
 		            }
             }
             else
             {
-                log.trace("Invalid media query: found expr, state: {}", $mediaquery::state);
+                trace("Invalid media query: found expr, state: {}", $mediaquery::state);
                 $mediaquery::invalid = true;
             }
       })
@@ -420,7 +512,7 @@ ruleset returns [cz.vutbr.web.css.RuleBlock<?> stmnt]
 @after {
     if($statement::invalid) {
         $stmnt = null;
-        log.debug("Ruleset not valid, so not created");
+        debug("Ruleset not valid, so not created");
     }
     else {    
 		 $stmnt = preparator.prepareRuleSet(cslist, decl, (this.wrapMedia != null && !this.wrapMedia.isEmpty()), this.wrapMedia);
@@ -432,7 +524,7 @@ ruleset returns [cz.vutbr.web.css.RuleBlock<?> stmnt]
         (cs=combined_selector  
         {if(cs!=null && !cs.isEmpty() && !$statement::invalid) {
             cslist.add(cs);
-            log.debug("Inserted combined selector ({}) into ruleset",  cslist.size());
+            debug("Inserted combined selector ({}) into ruleset",  cslist.size());
          }   
         } )*
 		decl=declarations 
@@ -453,7 +545,7 @@ declarations returns [List<cz.vutbr.web.css.Declaration> decl]
 	: ^(SET (d=declaration {
 	     if(d!=null) {
             $decl.add(d);
-            log.debug("Inserted declaration #{} ", $decl.size()+1);
+            debug("Inserted declaration #{} ", $decl.size()+1);
 		 }	
 	 })*
 	 )
@@ -476,15 +568,15 @@ scope {
 @after {
     if($declaration::invalid || $declaration.isEmpty()) {
         $decl=null;
-        log.debug("Declaration was invalidated or already invalid");
+        debug("Declaration was invalidated or already invalid");
     }
     else {
-        log.debug("Returning declaration: {}.", $decl);
+        debug("Returning declaration: {}.", $decl);
     }
     logLeave("declaration");    
 }
   : ^(DECLARATION 
-	    (important { $decl.setImportant(true); log.debug("IMPORTANT"); })?
+	    (important { $decl.setImportant(true); debug("IMPORTANT"); })?
       (INVALID_DIRECTIVE { $declaration::invalid=true; })?
       property 
       t=terms {$decl.replaceAll(t);}      
@@ -504,7 +596,7 @@ property
     logEnter("property");
 }
 @after {
-	log.debug("Setting property: {}", $declaration::d.getProperty());	   
+	debug("Setting property: {}", $declaration::d.getProperty());	   
     logLeave("property");
 }    
   : i = IDENT { $declaration::d.setProperty(extractText(i)); $declaration::d.setSource(extractSource(i)); }
@@ -531,7 +623,7 @@ scope {
     $terms::dash = false;
 }    
 @after {
-	log.debug("Totally added {} terms", $tlist.size());	   
+	debug("Totally added {} terms", $tlist.size());	   
     logLeave("terms");
 }
     : ^(VALUE term+)
@@ -587,7 +679,7 @@ valuepart
 			{String dim = extractText(d);
 				 $terms::term = tf.createDimension(dim, $terms::unary);
 			     if($terms::term==null) {
-					 log.info("Unable to create dimension from {}, unary {}", dim, $terms::unary);
+					 info("Unable to create dimension from {}, unary {}", dim, $terms::unary);
 			         $declaration::invalid = true;
 				 }
 	    }
@@ -650,16 +742,16 @@ scope {
     if($statement::invalid || $combined_selector::invalid) {        
         $combinedSelector = null;
         if($statement::invalid) { 
-			log.debug("Ommiting combined selector, whole statement discarded");
+			debug("Ommiting combined selector, whole statement discarded");
 		}	
         else { 
-			log.debug("Combined selector is invalid");               
+			debug("Combined selector is invalid");               
         }
 		// mark whole ruleset as invalid
         $statement::invalid = true;
     }
     else {
-        log.debug("Returing combined selector: {}.", $combinedSelector); 
+        debug("Returing combined selector: {}.", $combinedSelector); 
     }
     logLeave("combined_selector"); 
 }    
@@ -726,12 +818,12 @@ scope {
              } else if (namespaces.containsKey(prf)) {
                  ns = namespaces.get(prf);
              } else {
-                 log.error("No namespace declared for prefix {}", prf);
+                 error("No namespace declared for prefix {}", prf);
                  $statement::invalid = true;
              }
              if (!$statement::invalid) {
                  cz.vutbr.web.css.Selector.ElementName en = rf.createElement(ns, name, prf);
-                 log.debug("Adding element name: {}.", en);
+                 debug("Adding element name: {}.", en);
                  $selector::s.add(en.lock());
              }
          }
@@ -780,7 +872,7 @@ attribute returns [cz.vutbr.web.css.Selector.ElementAttribute elemAttr]
     else if (namespaces.containsKey(prf))
         ns = namespaces.get(prf);
     else {
-        log.error("No namespace declared for prefix {}", prf);
+        error("No namespace declared for prefix {}", prf);
         $combined_selector::invalid = true;
     }
     if (!$combined_selector::invalid) {
@@ -836,7 +928,7 @@ pseudo returns [cz.vutbr.web.css.Selector.PseudoPage pseudoPage]
 				try {
 					$pseudoPage = rf.createPseudoElement(extractText(i)); }
 				catch (Exception e2) {
-					log.error("invalid pseudo declaration: " + extractText(i));
+					error("invalid pseudo declaration: " + extractText(i));
                     $pseudoPage = null;
 				}
 			}
@@ -863,7 +955,7 @@ pseudo returns [cz.vutbr.web.css.Selector.PseudoPage pseudoPage]
       try {
           $pseudoPage = rf.createPseudoElement(extractText(i));
       } catch (Exception e) {
-          log.error("invalid pseudo declaration: " + extractText(i));
+          error("invalid pseudo declaration: " + extractText(i));
           $pseudoPage = null;
       }
     }
@@ -872,7 +964,7 @@ pseudo returns [cz.vutbr.web.css.Selector.PseudoPage pseudoPage]
       try {
           $pseudoPage = rf.createPseudoElementFunction(extractText(f), extractText(i));
       } catch (Exception e) {
-          log.error("invalid pseudo declaration", e);
+          error("invalid pseudo declaration", e);
       }
     }
   | ^(PSEUDOELEM f=FUNCTION m=MINUS? n=NUMBER)
@@ -882,7 +974,7 @@ pseudo returns [cz.vutbr.web.css.Selector.PseudoPage pseudoPage]
       try {
           $pseudoPage = rf.createPseudoElementFunction(extractText(f), exp);
       } catch (Exception e) {
-          log.error("invalid pseudo declaration", e);
+          error("invalid pseudo declaration", e);
       }
     }
   | ^(PSEUDOELEM f=FUNCTION m=MINUS? n=INDEX)
@@ -892,7 +984,7 @@ pseudo returns [cz.vutbr.web.css.Selector.PseudoPage pseudoPage]
       try {
           $pseudoPage = rf.createPseudoElementFunction(extractText(f), exp);
       } catch (Exception e) {
-          log.error("invalid pseudo declaration", e);
+          error("invalid pseudo declaration", e);
       }
     }
 	;
