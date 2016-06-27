@@ -65,7 +65,7 @@ options {
   
   @Override
 	public void emitErrorMessage(String msg) {
-	    info("ANTLR: {}", msg);
+	    warn("ANTLR: {}", msg);
 	}
 		
 	private String extractText(CommonTree token) {
