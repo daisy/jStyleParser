@@ -281,20 +281,20 @@ scope {
 		  else 
         debug("Ignoring import: {}", iuri);
 	  }
-	| ^(NAMESPACE
+	| ^(n=NAMESPACE
 	      (prf=namespace_prefix)?
 	      (ns=namespace_uri)
 	   )
 	  {
 	    if (prf == null) {
 	      if (defaultNamespace != null)
-	        warn("Default namespace already declared");
-	      debug("Declaring default namespace: url({})", ns);
+	        warn(n, "Default namespace already declared");
+	      debug(n, "Declaring default namespace: url({})", ns);
 	      defaultNamespace = ns;
 	    } else {
 	      if (namespaces.containsKey(prf))
-	        warn("Namespace for prefix {} already declared", prf);
-	      debug("Declaring namespace: {} url({})", prf, ns);
+	        warn(n, "Namespace for prefix {} already declared", prf);
+	      debug(n, "Declaring namespace: {} url({})", prf, ns);
 	      namespaces.put(prf, ns);
 	    }
 	  }
@@ -928,7 +928,7 @@ pseudo returns [cz.vutbr.web.css.Selector.PseudoPage pseudoPage]
 				try {
 					$pseudoPage = rf.createPseudoElement(extractText(i)); }
 				catch (Exception e2) {
-					error("invalid pseudo declaration: " + extractText(i));
+					error(i, "invalid pseudo declaration: " + extractText(i));
                     $pseudoPage = null;
 				}
 			}
@@ -955,7 +955,7 @@ pseudo returns [cz.vutbr.web.css.Selector.PseudoPage pseudoPage]
       try {
           $pseudoPage = rf.createPseudoElement(extractText(i));
       } catch (Exception e) {
-          error("invalid pseudo declaration: " + extractText(i));
+          error(i, "invalid pseudo declaration: " + extractText(i));
           $pseudoPage = null;
       }
     }
@@ -964,7 +964,7 @@ pseudo returns [cz.vutbr.web.css.Selector.PseudoPage pseudoPage]
       try {
           $pseudoPage = rf.createPseudoElementFunction(extractText(f), extractText(i));
       } catch (Exception e) {
-          error("invalid pseudo declaration", e);
+          error(f, "invalid pseudo declaration", e);
       }
     }
   | ^(PSEUDOELEM f=FUNCTION m=MINUS? n=NUMBER)
@@ -974,7 +974,7 @@ pseudo returns [cz.vutbr.web.css.Selector.PseudoPage pseudoPage]
       try {
           $pseudoPage = rf.createPseudoElementFunction(extractText(f), exp);
       } catch (Exception e) {
-          error("invalid pseudo declaration", e);
+          error(f, "invalid pseudo declaration", e);
       }
     }
   | ^(PSEUDOELEM f=FUNCTION m=MINUS? n=INDEX)
@@ -984,7 +984,7 @@ pseudo returns [cz.vutbr.web.css.Selector.PseudoPage pseudoPage]
       try {
           $pseudoPage = rf.createPseudoElementFunction(extractText(f), exp);
       } catch (Exception e) {
-          error("invalid pseudo declaration", e);
+          error(f, "invalid pseudo declaration", e);
       }
     }
 	;
