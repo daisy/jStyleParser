@@ -29,6 +29,14 @@ public interface CSSSourceReader {
 		}
 	}
 
+	/**
+	 * Whether this reader supports sources of the given media type.
+	 */
+	public boolean supportsMediaType(String mediaType);
+
+	/**
+	 * Read the source.
+	 */
 	public CSSInputStream read(CSSSource source) throws IOException;
 
 }

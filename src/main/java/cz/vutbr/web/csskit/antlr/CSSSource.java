@@ -43,6 +43,12 @@ public class CSSSource {
 	 */
 	public URL base;
 
+	/**
+	 * The media type as specified on the style or link element ("text/css", "text/x-scss", ...), or
+	 * null if not specified.
+	 */
+	public String mediaType;
+
 	public CSSSource(String source, Element inlineElement, URL base) {
 		this.type = SourceType.INLINE;
 		this.source = source;
@@ -50,16 +56,18 @@ public class CSSSource {
 		this.base = base;
 	}
 
-	public CSSSource(String source, URL base) {
+	public CSSSource(String source, String mediaType, URL base) {
 		this.type = SourceType.EMBEDDED;
 		this.source = source;
+		this.mediaType = mediaType;
 		this.base = base;
 	}
 
-	public CSSSource(URL source, Charset encoding) {
+	public CSSSource(URL source, Charset encoding, String mediaType) {
 		this.type = SourceType.URL;
 		this.source = source;
 		this.encoding = encoding;
+		this.mediaType = mediaType;
 		this.base = source;
 	}
 }

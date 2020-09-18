@@ -282,7 +282,7 @@ public class CSSParserFactory {
             {    
                 URL url = DataURLHandler.createURL(source.base, path);
                 try {
-                    parseAndImport(new CSSSource(url, source.encoding),
+                    parseAndImport(new CSSSource(url, source.encoding, (String)null),
                                    cssReader, sheet, preparator, imedia);
                 } catch (IOException e) {
                     log.warn("Couldn't read imported style sheet: {}", e.getMessage());

@@ -389,7 +389,7 @@ public final class CSSFactory {
 	 */
 	public static final StyleSheet parse(URL url, Charset encoding)
 			throws CSSException, IOException {
-		return getCSSParserFactory().parse(new CSSSource(url, encoding), new DefaultCSSSourceReader());
+		return getCSSParserFactory().parse(new CSSSource(url, encoding, (String)null), new DefaultCSSSourceReader());
 	}
 
     /**
@@ -408,7 +408,7 @@ public final class CSSFactory {
      */
     public static final StyleSheet parse(URL url, CSSSourceReader cssReader, Charset encoding)
             throws CSSException, IOException {
-        return getCSSParserFactory().parse(new CSSSource(url, encoding), cssReader);
+        return getCSSParserFactory().parse(new CSSSource(url, encoding, (String)null), cssReader);
     }
 
 	/**
@@ -494,7 +494,7 @@ public final class CSSFactory {
             CSSException {
         if (base == null)
             base = new URL("file:///base/url/is/not/specified"); //prevent errors if there are still some relative URLs used
-        return getCSSParserFactory().parse(new CSSSource(css, base), cssReader);
+        return getCSSParserFactory().parse(new CSSSource(css, (String)null, base), cssReader);
     }
     
     /**
@@ -781,20 +781,26 @@ public final class CSSFactory {
 			try {
 				// embedded style-sheet
 				if (isEmbeddedStyleSheet(elem, media)) {
-					result = pf.append(
-						new CSSSource(extractElementText(elem), base),
-						cssReader,
-						result);
-					log.debug("Matched embedded CSS style");
+					String mediaType = getMediaType(elem);
+					if (cssReader.supportsMediaType(mediaType)) {
+						result = pf.append(
+							new CSSSource(extractElementText(elem), mediaType, base),
+							cssReader,
+							result);
+						log.debug("Matched embedded CSS style");
+					}
 				}
 				// linked style-sheet
 				else if (isLinkedStyleSheet(elem, media)) {
 				    URL uri = DataURLHandler.createURL(base, ElementUtil.getAttribute(elem, "href"));
-					result = pf.append(
-						new CSSSource(uri, encoding),
-						cssReader,
-						result);
-					log.debug("Matched linked CSS style");
+					String mediaType = getMediaType(elem);
+					if (cssReader.supportsMediaType(mediaType)) {
+						result = pf.append(
+							new CSSSource(uri, encoding, getMediaType(elem)),
+							cssReader,
+							result);
+						log.debug("Matched linked CSS style");
+					}
 				}
 				// in-line style and default style
 				else {
@@ -831,8 +837,20 @@ public final class CSSFactory {
 		private boolean isLinkedStyleSheet(Element e, MediaSpec media) {
 			return e.getNodeName().equalsIgnoreCase("link")
 			        && (ElementUtil.getAttribute(e, "rel").toLowerCase().contains("stylesheet"))
-					&& (ElementUtil.getAttribute(e, "type").isEmpty() || "text/css".equalsIgnoreCase(ElementUtil.getAttribute(e, "type")))
 					&& isAllowedMedia(e, media);
+		}
+
+		/*
+		 * @param e style or link element
+		 */
+		private String getMediaType(Element e) {
+			String type = ElementUtil.getAttribute(e, "type");
+			if (type != null) {
+				if (type.isEmpty())
+					return null;
+				return type.toLowerCase();
+			}
+			return null;
 		}
 
 		/**

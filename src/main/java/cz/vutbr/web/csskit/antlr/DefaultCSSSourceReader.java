@@ -24,7 +24,16 @@ public class DefaultCSSSourceReader implements CSSSourceReader {
 		this.network = network;
 	}
 
+	/**
+	 * Returns true when mediaType is "text/css" or null.
+	 */
+	public boolean supportsMediaType(String mediaType) {
+		return mediaType == null || "text/css".equals(mediaType);
+	}
+
 	public CSSInputStream read(CSSSource source) throws IOException {
+		if (!supportsMediaType(source.mediaType))
+			throw new IllegalArgumentException();
 		switch (source.type) {
 		case INLINE:
 		case EMBEDDED:
