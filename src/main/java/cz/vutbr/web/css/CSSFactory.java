@@ -12,9 +12,11 @@ import java.util.List;
 import org.fit.net.DataURLHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.w3c.dom.CharacterData;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.w3c.dom.Text;
 import org.w3c.dom.traversal.NodeFilter;
 
@@ -863,10 +865,19 @@ public final class CSSFactory {
 		 * @return Element's text
 		 */
 		private static String extractElementText(Element e) {
-			Node text = e.getFirstChild();
-			if (text != null && text.getNodeType() == Node.TEXT_NODE)
-				return ((Text) text).getData();
-			return "";
+			StringBuilder s = new StringBuilder();
+			NodeList children = e.getChildNodes();
+			for (int i = 0; i < children.getLength(); i++) {
+				Node text = children.item(i);
+				if (text != null) {
+					if (text.getNodeType() == Node.TEXT_NODE
+					    || text.getNodeType() == Node.CDATA_SECTION_NODE)
+						s.append(((CharacterData)text).getData());
+					else if (text.getNodeType() == Node.COMMENT_NODE)
+						s.append("<!--").append(((CharacterData)text).getData()).append("-->");
+				}
+			}
+			return s.toString();
 		}
 
 		/**
