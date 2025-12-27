@@ -42,15 +42,6 @@ public class RuleMediaImpl extends AbstractRuleBlock<RuleBlock<?>> implements Ru
 	}
 	
     @Override
-    public void setStyleSheet(StyleSheet stylesheet)
-    {
-        super.setStyleSheet(stylesheet);
-        //assign the style sheet recursively to the contained rule sets
-        for (RuleBlock<?> rule : list)
-            rule.setStyleSheet(stylesheet);
-    }
-
-    @Override
     public String toString() {
     	return this.toString(0);
     }

@@ -7,26 +7,45 @@ import java.util.Iterator;
 import java.util.List;
 
 import cz.vutbr.web.css.Rule;
+import cz.vutbr.web.css.StyleSheet.Origin;
 
 public class AbstractRule<T> extends AbstractList<T> implements Rule<T> {
 	
 	protected List<T> list = Collections.emptyList();
 	protected int hash = 0;
+	protected Origin origin = null;
 	
+	@Override
 	public List<T> asList() {
 		return this.list;
 	}
 	
+	@Override
 	public Rule<T> replaceAll(List<T> replacement) {
         hash = 0;
 		this.list = replacement;
 		return this;
 	}
 	
+	@Override
 	public Rule<T> unlock() {
         hash = 0;
 		this.list = new ArrayList<T>();
 		return this;
+	}
+	
+	@Override
+	public Origin getOrigin() {
+		return origin;
+	}
+	
+	@Override
+	public void setOrigin(Origin origin) {
+		this.origin = origin;
+		// set origin recursively on contained rules
+		for (T t : list)
+			if (t instanceof Rule)
+				((Rule<?>)t).setOrigin(origin);
 	}
 	
 	@Override
@@ -42,12 +61,16 @@ public class AbstractRule<T> extends AbstractList<T> implements Rule<T> {
 	@Override
 	public T set(int index, T element) {
         hash = 0;
+		if (element instanceof Rule)
+			((Rule<?>)element).setOrigin(origin);
 		return list.set(index, element);
 	}
 	
 	@Override
 	public void add(int index, T element) {
         hash = 0;
+		if (element instanceof Rule)
+			((Rule<?>)element).setOrigin(origin);
 		list.add(index, element);
 	}
 	
@@ -65,6 +88,8 @@ public class AbstractRule<T> extends AbstractList<T> implements Rule<T> {
 	@Override
 	public boolean add(T o) {
 	    hash = 0;
+		if (o instanceof Rule)
+			((Rule<?>)o).setOrigin(origin);
 		return list.add(o);
 	};
 	
