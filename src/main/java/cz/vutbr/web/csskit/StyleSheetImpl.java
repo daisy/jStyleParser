@@ -24,6 +24,7 @@ public class StyleSheetImpl extends AbstractRule<RuleBlock<?>> implements StyleS
 		StyleSheet filtered = new StyleSheetImpl();
 		filtered.unlock();
 		filtered.setOrigin(getOrigin());
+		filtered.setMediaQueries(getMediaQueries());
 		filter(this, medium, filtered);
 		return filtered;
 	}

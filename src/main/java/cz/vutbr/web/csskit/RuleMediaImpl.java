@@ -18,27 +18,12 @@ import cz.vutbr.web.css.StyleSheet;
  * 
  */
 public class RuleMediaImpl extends AbstractRuleBlock<RuleBlock<?>> implements RuleMedia {
-  
-	/** List of medias */
-	protected MediaQueryList media;
-	
+
 	/**
 	 * Creates an empty object to be filled by interface methods
 	 * @param priority Priority mark
 	 */
 	protected RuleMediaImpl() {
-		this.media = MediaQueryListImpl.EMPTY;
-	}    
-    
-	@Override
-	public MediaQueryList getMediaQueries() {
-		return media;
-	}
-
-	@Override
-	public RuleMedia setMediaQueries(MediaQueryList medias) {
-		this.media = medias;
-		return this;
 	}
 	
     @Override

@@ -50,4 +50,18 @@ public interface Rule<T> extends List<T> {
 	 */
 	public Origin getOrigin();
 
+	/**
+	 * Sets the media query list associated with this rule.
+	 *
+	 * An empty list or {@code null} means that this rule applies to all media (equivalent to "all").
+	 */
+	public void setMediaQueries(MediaQueryList media);
+
+	/**
+	 * Gets the media query list associated with this rule.
+	 *
+	 * An empty list or {@code null} means that this rule applies to all media (equivalent to "all").
+	 */
+	public MediaQueryList getMediaQueries();
+
 }

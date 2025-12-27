@@ -32,30 +32,46 @@ public class MediaQueryListImpl extends AbstractRuleBlock<MediaQuery> implements
 	public MediaQueryList and(MediaQuery query) {
 		if (query == null)
 			return this;
-		return and(Collections.singletonList(query));
+		else
+			return and(Collections.singletonList(query));
 	}
 
 	public MediaQueryList and(List<MediaQuery> queries) {
 		if (queries == null || queries.isEmpty())
 			return this;
-		else if (isEmpty() && queries instanceof MediaQueryList)
-			return (MediaQueryList)queries;
-		MediaQueryList list = new MediaQueryListImpl();
-		list.unlock();
-		if (isEmpty()) {
-			for (MediaQuery q : queries)
-				list.add(q);
-			return list;
-		}
-		for (MediaQuery q : this)
-			for (MediaQuery qq : queries) {
-				MediaQuery qqq = q.and(qq);
-				if (qqq != MediaQueryImpl.NOT_ALL)
-					list.add(qqq);
+		else if (isEmpty()) {
+			if (queries instanceof MediaQueryList)
+				return (MediaQueryList)queries;
+			else {
+				MediaQueryList list = new MediaQueryListImpl();
+				list.unlock();
+				for (MediaQuery q : queries)
+					list.add(q);
+				return list;
 			}
-		if (list.isEmpty())
-			list.add(MediaQueryImpl.NOT_ALL);
-		return list;
+		} else {
+			MediaQueryList combined = this;
+			MediaQueryList newList = new MediaQueryListImpl();
+			newList.unlock();
+			for (MediaQuery q : this) {
+				MediaQuery c = null;
+				for (MediaQuery qq : queries) {
+					MediaQuery cc = q.and(qq);
+					if (cc != MediaQueryImpl.NOT_ALL) {
+						newList.add(cc);
+						if (c == null)
+							c = cc;
+						else if (c != cc)
+							combined = newList;
+					}
+				}
+				if (c == null)
+					combined = newList;
+			}
+			if (combined == newList && newList.isEmpty())
+				newList.add(MediaQueryImpl.NOT_ALL);
+			return combined;
+		}
 	}
 
 	@Override
