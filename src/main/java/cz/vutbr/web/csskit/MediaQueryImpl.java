@@ -99,6 +99,7 @@ public class MediaQueryImpl extends AbstractRule<MediaExpression> implements Med
             else
                 combined = new MediaQueryImpl(type, negative);
         }
+        combined.unlock();
         combined.addAll(this);
         if (negative == query.isNegative())
             combined.addAll(query);

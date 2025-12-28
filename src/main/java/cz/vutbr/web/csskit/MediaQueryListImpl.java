@@ -26,6 +26,23 @@ public class MediaQueryListImpl extends AbstractRuleBlock<MediaQuery> implements
 			}
 		};
 
+	/**
+	 * Immutable media query list that never matches.
+	 */
+	public static final MediaQueryList NOT_ALL = new MediaQueryListImpl() {
+			{
+				this.list = Collections.singletonList(MediaQueryImpl.NOT_ALL);
+			}
+			@Override
+			public Rule<MediaQuery> replaceAll(List<MediaQuery> replacement) {
+				throw new UnsupportedOperationException("Object is immutable");
+			}
+			@Override
+			public Rule<MediaQuery> unlock() {
+				throw new UnsupportedOperationException("Object is immutable");
+			}
+		};
+
 	public MediaQueryListImpl() {
 	}
 
@@ -69,7 +86,7 @@ public class MediaQueryListImpl extends AbstractRuleBlock<MediaQuery> implements
 					combined = newList;
 			}
 			if (combined == newList && newList.isEmpty())
-				newList.add(MediaQueryImpl.NOT_ALL);
+				return NOT_ALL;
 			return combined;
 		}
 	}
